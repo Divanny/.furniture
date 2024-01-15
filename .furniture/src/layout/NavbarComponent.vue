@@ -1,10 +1,13 @@
 <template>
   <div class="navbar-container flex justify-content-between p-3 mb-2">
     <!-- LOGO -->
-    <div class="logo" />
+    <router-link to="/">
+      <div class="logo" />
+    </router-link>
     <!-- SEARCH BAR -->
     <div class="search-bar w-6 flex align-items-center">
       <AutoComplete v-model="selectedCountry" style="" size="small" optionLabel="name" class="w-full" :suggestions="filteredCountries" @complete="search" />
+      <Button icon="pi pi-search" @click="" severity="secondary" class="text-black-alpha-90 mx-2 py-2 px-0 text-xs" style="height: 2rem;" size="small" text  />
     </div>
     <!-- ITEMS -->
     <div class="d-flex">
@@ -69,6 +72,23 @@
   </div>
 </template>
 
+<script>
+export default {
+  components: {},
+  data() {
+    return {
+      cartSidebar: false
+    }
+  },
+  watch: {
+
+  },
+  mounted() {
+
+  },
+  methods: {}
+};
+</script>
 <style>
 .navbar-container {
   display: flex;
@@ -118,21 +138,3 @@
  background-color: #f5f5f5;
 }
 </style>
-
-<script>
-export default {
-  components: {},
-  data() {
-    return {
-      cartSidebar: false
-    }
-  },
-  watch: {
-
-  },
-  mounted() {
-
-  },
-  methods: {}
-};
-</script>
