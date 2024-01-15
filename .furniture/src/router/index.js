@@ -13,7 +13,8 @@ const router = createRouter({
     {
       path: '/Productos',
       name: 'Productos',
-      component: ProductosView
+      component: ProductosView,
+      props: (route) => ({ q: route.query.q || null })
     }
   ]
 })

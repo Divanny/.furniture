@@ -12,22 +12,22 @@
     </div>
 </div>
 <div class="flex flex-wrap justify-content-around gap-3 my-4">
-    <div class="border-round w-22rem h-10rem surface-100 p-4">
+    <div class="border-round w-full mx-4 md:mx-0 md:w-18rem h-10rem surface-100 p-4">
         <i class="text-xl fa-solid font-bold  fa-warehouse w-full"></i>
         <div class="my-2 w-full font-bold ">Recoge tu compra</div>
         <div class="text-sm w-full">Compra online y recoge tu compra gratis. En Santo Domingo tienes disponible la recogida desde carro.</div>
     </div>
-    <div class="border-round w-22rem h-10rem surface-100 p-4">
+    <div class="border-round w-full mx-4 md:mx-0 md:w-18rem h-10rem surface-100 p-4">
         <i class="text-xl fa-solid font-bold fa-box-open w-full"></i>
         <div class="my-2 w-full font-bold ">Envío por paquetería</div>
         <div class="text-sm w-full">Compra todos los artículos que quieras y recíbelos en casa por RD$290.</div>
     </div>
-    <div class="border-round w-22rem h-10rem surface-100 p-4">
+    <div class="border-round w-full mx-4 md:mx-0 md:w-18rem h-10rem surface-100 p-4">
         <i class="text-xl fa-solid font-bold fa-truck w-full"></i>
         <div class="my-2 w-full font-bold ">Servicio de transporte</div>
         <div class="text-sm w-full">Te enviamos tu compra a casa por un pequeño coste adicional.</div>
     </div>
-    <div class="border-round w-22rem h-10rem surface-100 p-4">
+    <div class="border-round w-full mx-4 md:mx-0 md:w-18rem h-10rem surface-100 p-4">
         <i class="text-xl fa-solid font-bold fa-phone w-full"></i>
         <div class="my-2 w-full font-bold ">Servicio de venta telefónica</div>
         <div class="text-sm w-full">Si necesitas ayuda con tu compra, llámanos al +1 809 567 (4532).</div>
@@ -36,14 +36,14 @@
 <div class="my-4">
     <div class="flex justify-content-between m-2 mt-3 px-6 align-items-center">
         <div class="text-2xl font-bold">Productos Destacados</div>
-        <div class="text-sm underline cursor-pointer">Ver todos</div>
+        <div class="text-sm underline cursor-pointer" @click="this.$router.push('/Productos')">Ver todos</div>
     </div>
     <Carousel :value="trendingProducts" :numVisible="5" :numScroll="1" :responsiveOptions="responsiveOptions" circular :autoplayInterval="3000">
         <template #item="slotProps">
             <div class="m-2 border-round-lg	cursor-pointer relative">
                 <div :style="{ backgroundImage: `url(${('/src/assets/empty-img.png')})` }" class="border-round-3xl h-15rem w-full bg-cover bg-no-repeat bg-center" />
                 <div class="my-2 white-space-nowrap overflow-hidden text-overflow-ellipsis w-16rem">{{ slotProps.data.name }}</div>
-                <div class="font-bold">${{ slotProps.data.price }}</div>
+                <div class="font-bold">${{ slotProps.data.price }}DOP</div>
                 <div class="absolute top-0 right-0 m-3 cart-quantity">
                     <Button v-if="slotProps.data.favorito" icon="fa-solid fa-heart" size="small" style="padding: 0px 12px; width: 2rem; height: 2rem;" class="bg-white border-none text-black-alpha-90" rounded severity="secondary"  />
                     <Button v-else icon="fa-regular fa-heart" size="small" style="padding: 0px 12px; width: 2rem; height: 2rem;" class="bg-white border-none text-black-alpha-90" rounded severity="secondary"  />
@@ -62,8 +62,8 @@ export default {
         trendingProducts: null,
         responsiveOptions: [
             {
-                breakpoint: '1400px',
-                numVisible: 2,
+                breakpoint: '1600px',
+                numVisible: 4,
                 numScroll: 1
             },
             {

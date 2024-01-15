@@ -6,19 +6,16 @@
     </router-link>
     <!-- SEARCH BAR -->
     <div class="search-bar w-6 flex align-items-center">
-      <AutoComplete v-model="selectedCountry" style="" size="small" optionLabel="name" class="w-full" :suggestions="filteredCountries" @complete="search" />
-      <Button icon="pi pi-search" @click="" severity="secondary" class="text-black-alpha-90 mx-2 py-2 px-0 text-xs" style="height: 2rem;" size="small" text  />
+      <AutoComplete @keyup.enter="this.$router.push({ path: `/Productos?q=${this.busqueda}` })" v-model="busqueda" style="" size="small" optionLabel="name" class="w-full" :suggestions="filteredCountries" @complete="search" />
+      <Button icon="pi pi-search" @click="this.$router.push({ path: `/Productos?q=${this.busqueda}` })" severity="secondary" class="text-black-alpha-90 mx-2 py-2 px-0 text-xs" style="height: 2rem;" size="small" text  />
     </div>
     <!-- ITEMS -->
     <div class="d-flex">
-      <Button size="large" icon="pi pi-truck" severity="secondary" class="text-black-alpha-90 mx-1 rounded-5" text rounded
-        aria-label="Bookmark" />
-      <Button size="large" icon="pi pi-user" severity="secondary" class="text-black-alpha-90 mx-1 rounded-5" text rounded
-        aria-label="Bookmark" />
-      <Button size="large" icon="pi pi-heart" severity="secondary" class="text-black-alpha-90 mx-1 rounded-5" text rounded
-        aria-label="Bookmark" />
+      <Button size="large" icon="pi pi-truck" severity="secondary" class="text-black-alpha-90 mx-1 rounded-5" text rounded />
+      <Button size="large" icon="pi pi-user" severity="secondary" class="text-black-alpha-90 mx-1 rounded-5" text rounded />
+      <Button size="large" icon="pi pi-heart" severity="secondary" class="text-black-alpha-90 mx-1 rounded-5" text rounded />
       <Button size="large" icon="pi pi-shopping-bag" @click="cartSidebar = true" severity="secondary"
-        class="text-black-alpha-90 mx-1 rounded-5" text rounded aria-label="Bookmark" />
+        class="text-black-alpha-90 mx-1 rounded-5" text rounded />
     </div>
     <Sidebar v-model:visible="cartSidebar" position="right">
       <template #header>
@@ -71,20 +68,22 @@
     </Sidebar>
   </div>
 </template>
-
 <script>
+import { push } from 'notivue'
+
 export default {
   components: {},
   data() {
     return {
-      cartSidebar: false
+      cartSidebar: false,
+      busqueda: null,
     }
   },
   watch: {
 
   },
   mounted() {
-
+    
   },
   methods: {}
 };
