@@ -24,21 +24,21 @@
                         <div class="flex flex-column sm:flex-row justify-content-between align-items-center xl:align-items-start flex-1 gap-4 h-9rem my-2">
                             <div class="flex flex-column align-items-center sm:align-items-start gap-3 h-full">
                                 <div>
-                                    <div class="text-2xl mb-1 font-bold text-700">{{ item.name }}</div>
+                                    <div class="text-2xl mb-1 font-bold text-700">{{ item.NombreProducto }}</div>
                                     <div class="flex align-items-center justify-content-start gap-2">
-                                        <i class="pi pi-tag text-sm"></i>
-                                        <div class="font-semibold text-sm">{{ item.category }}</div>
+                                        <i class="text-sm"></i>
+                                        <div class="font-semibold text-sm">{{ item.NombreCategoria }}</div>
                                     </div>
                                 </div>
-                                <Rating :modelValue="item.rating" readonly :cancel="false"></Rating>
+                                <Rating :modelValue="item.Valoracion" readonly :cancel="false"></Rating>
                                 <div class="flex align-items-center gap-3 mt-auto">
-                                    <div class="text-xs text-red-500 font-bold" v-if="item.cantidad == 0">No disponible</div>
-                                    <div class="text-xs text-green-600 font-bold" v-else-if="item.cantidad > 10">Disponible</div>
+                                    <div class="text-xs text-red-500 font-bold" v-if="item.Disponible == 0">No disponible</div>
+                                    <div class="text-xs text-green-600 font-bold" v-else-if="item.Disponible > 10">Disponible</div>
                                     <div class="text-xs text-orange-500 font-bold" v-else>Solo quedan 10 disponibles</div>
                                 </div>
                             </div>
                             <div class="flex sm:flex-column align-items-center sm:align-items-end gap-3 sm:gap-2 h-full">
-                                <div class="text-2xl font-bold text-700">${{ item.price }}DOP</div>
+                                <div class="text-2xl font-bold text-700">${{ item.Precio }}DOP</div>
                                 <Button icon="pi pi-eye" class="p-0 w-2rem h-2rem mt-auto bg-white text-black-alpha-80 font-bold border-1" severity="secondary" size="small" rounded></Button>
                                 <Button icon="pi pi-shopping-bag" class="p-0 w-2rem h-2rem" v-tooltip.top="'Agregar al carrito'" size="small" rounded :disabled="item.inventoryStatus === 'OUTOFSTOCK'"></Button>
                             </div>
@@ -53,17 +53,18 @@
                 <div v-for="(item, index) in slotProps.items" :key="index" class="col-12 sm:col-6 lg:col-4 xl:col-3 p-2">
                     <div class="m-2 border-round-lg	cursor-pointer relative">
                         <div :style="{ backgroundImage: `url(${('/src/assets/empty-img.png')})` }" class="border-round-3xl h-15rem w-full bg-cover bg-no-repeat bg-center" />
-                        <div class="mt-2 font-bold text-sm white-space-nowrap overflow-hidden text-overflow-ellipsis w-full">{{ item.name }}</div>
-                        <div class="mb-2 mt-1 text-xs white-space-nowrap overflow-hidden text-overflow-ellipsis w-full">{{ item.name }}</div>
-                        <div class="font-bold text-base">${{ item.price }}DOP</div>
+                        <div class="mt-2 font-bold text-sm white-space-nowrap overflow-hidden text-overflow-ellipsis w-full">{{ item.NombreProducto }}</div>
+                        <div class="mb-2 mt-1 text-xs white-space-nowrap overflow-hidden text-overflow-ellipsis w-full">{{ item.NombreCategoria }}</div>
+                        <div class="font-bold text-base">${{ item.Precio }}DOP</div>
                         <div class="absolute top-0 right-0 m-3 cart-quantity">
-                            <Button v-if="item.favorito" icon="fa-solid fa-heart" size="small" style="padding: 0px 12px; width: 2rem; height: 2rem;" class="bg-white border-none text-black-alpha-90" rounded severity="secondary"  />
-                            <Button v-else icon="fa-regular fa-heart" size="small" style="padding: 0px 12px; width: 2rem; height: 2rem;" class="bg-white border-none text-black-alpha-90" rounded severity="secondary"  />
+                            <FavoriteComponent :idProducto="item.idProducto" :id="item.idProducto"/>
                         </div>
                     </div>
                 </div>
             </div>
         </template>
+
+        <template #empty><div class="p-3">No se han encontrado resultados</div></template>
     </DataView>
 </div>
 </template>
@@ -76,8 +77,14 @@
 }
 </style>
 <script>
+import supabase from '../lib/supabaseClient'
+import { push } from 'notivue'
+import FavoriteComponent from '@/layout/FavoriteComponent.vue';
+
 export default {
-  components: {},
+  components: {
+    FavoriteComponent
+  },
   data() {
     return {
         home: {
@@ -123,105 +130,38 @@ export default {
   },
   created() {
     this.busqueda = this.$route.query.q || null;
-    console.log(this.busqueda);
   },
   watch: {
-
+    '$route.query.q': function(newQ, oldQ) {
+      this.busqueda = newQ || null;
+      this.loadProducts();
+    }
   },
   mounted() {
-    this.products = [
-    {
-    id: '1000',
-    code: 'f230fh0g3',
-    name: 'Bamboo Watchasdasdadd',
-    description: 'Product Description',
-    image: 'bamboo-watch.jpg',
-    price: 65,
-    category: 'Accessories',
-    quantity: 24,
-    inventoryStatus: 'OUTOFSTOCK',
-    rating: 5
-},{
-    id: '1000',
-    code: 'f230fh0g3',
-    name: 'Bamboo Watch',
-    description: 'Product Description',
-    image: 'bamboo-watch.jpg',
-    price: 65,
-    category: 'Accessories',
-    quantity: 24,
-    inventoryStatus: 'INSTOCK',
-    rating: 5
-},{
-    id: '1000',
-    code: 'f230fh0g3',
-    name: 'Bamboo Watch',
-    description: 'Product Description',
-    image: 'bamboo-watch.jpg',
-    price: 65,
-    category: 'Accessories',
-    quantity: 24,
-    inventoryStatus: 'INSTOCK',
-    rating: 5
-},{
-    id: '1000',
-    code: 'f230fh0g3',
-    name: 'Bamboo Watch',
-    description: 'Product Description',
-    image: 'bamboo-watch.jpg',
-    price: 65,
-    category: 'Accessories',
-    quantity: 24,
-    inventoryStatus: 'INSTOCK',
-    rating: 5
-},{
-    id: '1000',
-    code: 'f230fh0g3',
-    name: 'Bamboo Watch',
-    description: 'Product Description',
-    image: 'bamboo-watch.jpg',
-    price: 65,
-    category: 'Accessories',
-    quantity: 24,
-    inventoryStatus: 'INSTOCK',
-    rating: 5
-},{
-    id: '1000',
-    code: 'f230fh0g3',
-    name: 'Bamboo Watch',
-    description: 'Product Description',
-    image: 'bamboo-watch.jpg',
-    price: 65,
-    category: 'Accessories',
-    quantity: 24,
-    inventoryStatus: 'INSTOCK',
-    rating: 5
-},{
-    id: '1000',
-    code: 'f230fh0g3',
-    name: 'Bamboo Watch',
-    description: 'Product Description',
-    image: 'bamboo-watch.jpg',
-    price: 65,
-    category: 'Accessories',
-    quantity: 24,
-    inventoryStatus: 'INSTOCK',
-    rating: 5
-},{
-    id: '1000',
-    code: 'f230fh0g3',
-    name: 'Bamboo Watch',
-    description: 'Product Description',
-    image: 'bamboo-watch.jpg',
-    price: 65,
-    category: 'Accessories',
-    quantity: 24,
-    inventoryStatus: 'INSTOCK',
-    rating: 5
-},
-    ]
+    this.loadProducts();    
   },
   methods: {
+    async loadProducts() {
+        if (this.busqueda) {
+            let { data: Productos, error } = await supabase
+            .from('Productos')
+            .select("*")
+            .textSearch('NombreProducto',  `'${this.busqueda}'`)
+    
+            if (error) {
+    
+            }
+            else this.products = Productos;
+        }
+        else {
+            let { data: Productos, error } = await supabase
+            .from('Productos')
+            .select("*")
+    
+            if (error) push.error(error.message);
+            else this.products = Productos;
+        }
+    },
     getSeverity(status) {
         switch (status) {
             case 'INSTOCK':

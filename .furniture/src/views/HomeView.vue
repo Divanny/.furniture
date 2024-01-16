@@ -11,23 +11,23 @@
         <img src="../assets/portrait-home.jpg" alt="Image" class="md:ml-auto block md:h-full" style="clip-path: polygon(8% 0, 100% 0%, 100% 100%, 0 100%)" />
     </div>
 </div>
-<div class="flex flex-wrap justify-content-around gap-3 my-4">
-    <div class="border-round w-full mx-4 md:mx-0 md:w-18rem h-10rem surface-100 p-4">
+<div class="grid gap-3 m-4">
+    <div class="border-round col-12 sm:col-6 md:col surface-100 p-4">
         <i class="text-xl fa-solid font-bold  fa-warehouse w-full"></i>
         <div class="my-2 w-full font-bold ">Recoge tu compra</div>
         <div class="text-sm w-full">Compra online y recoge tu compra gratis. En Santo Domingo tienes disponible la recogida desde carro.</div>
     </div>
-    <div class="border-round w-full mx-4 md:mx-0 md:w-18rem h-10rem surface-100 p-4">
+    <div class="border-round col-12 sm:col-6 md:col surface-100 p-4">
         <i class="text-xl fa-solid font-bold fa-box-open w-full"></i>
         <div class="my-2 w-full font-bold ">Envío por paquetería</div>
         <div class="text-sm w-full">Compra todos los artículos que quieras y recíbelos en casa por RD$290.</div>
     </div>
-    <div class="border-round w-full mx-4 md:mx-0 md:w-18rem h-10rem surface-100 p-4">
+    <div class="border-round col-12 sm:col-6 md:col surface-100 p-4">
         <i class="text-xl fa-solid font-bold fa-truck w-full"></i>
         <div class="my-2 w-full font-bold ">Servicio de transporte</div>
         <div class="text-sm w-full">Te enviamos tu compra a casa por un pequeño coste adicional.</div>
     </div>
-    <div class="border-round w-full mx-4 md:mx-0 md:w-18rem h-10rem surface-100 p-4">
+    <div class="border-round col-12 sm:col-6 md:col surface-100 p-4">
         <i class="text-xl fa-solid font-bold fa-phone w-full"></i>
         <div class="my-2 w-full font-bold ">Servicio de venta telefónica</div>
         <div class="text-sm w-full">Si necesitas ayuda con tu compra, llámanos al +1 809 567 (4532).</div>
