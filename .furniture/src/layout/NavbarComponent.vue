@@ -29,6 +29,7 @@
       <Button size="large" @click="openCart()" icon="pi pi-shopping-bag" severity="secondary"
         class="text-black-alpha-90 mx-1 rounded-5" text rounded />
     </div>
+    <!-- CARRITO -->
     <Sidebar v-model:visible="cartSidebar" position="right">
       <template #header>
         <span class="inline-flex align-items-center gap-2">
@@ -78,6 +79,7 @@
       </div>
 
     </Sidebar>
+    <!-- FAVORITOS -->
     <Sidebar v-model:visible="favoriteSidebar" position="right">
       <template #header>
         <span class="inline-flex align-items-center gap-2">
@@ -87,20 +89,20 @@
       </template>
       <div class="flex flex-column h-full">
         <div class="overflow-y-auto">
-          <div
+          <div v-for="item in favoriteProducts"
             class="border-1 mb-3 border-round-sm p-2 border-200 shadow-1 hover:shadow-none hover:surface-100 transition-duration-150 transition-colors cursor-pointer flex flex-wrap gap-2 justify-content-start"
             rounded>
             <div :style="{ backgroundImage: `url(${('/src/assets/empty-img.png')})` }" class="cart-product" />
             <div class="cart-product-summary" style="max-width:60%; height: 90px">
               <div class="text-sm	mt-1 font-semibold white-space-nowrap overflow-hidden text-overflow-ellipsis">
-                Producto Nombre asdsadsa dsad sasadsadsadsa
+                {{ item.NombreProducto }}
               </div>
               <div class="text-md	mt-1 font-bold white-space-nowrap overflow-hidden text-overflow-ellipsis">
-                $80.2DOP
+                ${{ item.Precio }}DOP
               </div>
               <div class="flex text-xs cart-quantity justify-content-start gap-2 mt-3">
                 <Button icon="pi pi-shopping-bag" size="small" style="padding: 4px 14px" severity="primary" />
-                <Button icon="fa-solid fa-heart" size="small" style="padding: 4px 14px" severity="secondary"  />
+                <Button icon="fa-solid fa-heart" size="small" style="padding: 4px 14px" severity="secondary" @click="removeFavorite(item.idProducto)" />
               </div>
             </div>
           </div>
@@ -146,13 +148,21 @@ export default {
       }
     },
     async loadFavoriteProducts() {
-      let { data: Productos, error } = await supabase
-            .from('Productos')
-            .select("*")
-      if (Productos) {
-        this.favoriteProducts = Productos;
+      let { data, error } = await supabase.rpc('loadfavoritesproducts')
+      
+      if (data) {
+        this.favoriteProducts = data;
       }
     },
+    async removeFavorite(idProducto) {
+      const { error } = await supabase
+      .from('Favoritos')
+      .delete()
+      .eq('idProducto', idProducto)
+
+      if (error) push.error(error.message);
+      else this.loadFavoriteProducts();
+    },  
     async loadProducts() {
       let { data: Productos, error } = await supabase
             .from('Productos')
@@ -196,6 +206,7 @@ export default {
         return;
       } 
       else {
+        this.loadFavoriteProducts();
         this.favoriteSidebar = true;
       }
     },

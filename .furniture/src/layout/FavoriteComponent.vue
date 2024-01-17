@@ -19,7 +19,7 @@ watch: {
     }
 },
 created() {
-    
+    this.loadFavorite(this.idProducto)
 },
 methods: {
     async loadFavorite(idProducto) {
@@ -34,12 +34,7 @@ methods: {
     async manageFavorite() {
         const { data: { user } } = await supabase.auth.getUser()
 
-        let { data: Favoritos, error } = await supabase
-        .from('Favoritos')
-        .select("*")
-        .eq('idProducto', this.idProducto)
-
-        if (Favoritos.length > 0) {
+        if (this.Favorito) {
             // Eliminar del favorito
             const { error } = await supabase
             .from('Favoritos')
