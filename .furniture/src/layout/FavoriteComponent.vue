@@ -1,5 +1,5 @@
 <template>
-    <Button :icon="Favorito ? 'fa-solid fa-heart' : 'fa-regular fa-heart'" size="small" style="padding: 0px 12px; width: 2rem; height: 2rem;" class="bg-white border-none text-black-alpha-90" rounded severity="secondary" @click="manageFavorite()" />
+    <Button :icon="$store.state.favoritesProducts.some(x => x.idProducto == idProducto) ? 'fa-solid fa-heart text-red-400' : 'fa-regular fa-heart'" size="small" style="padding: 0px 12px; width: 2rem; height: 2rem;" class="bg-white border-none text-black-alpha-90" rounded severity="secondary" @click="manageFavorite()" />
 </template>
 <script>
 import { push } from 'notivue'
@@ -9,9 +9,7 @@ export default {
 props: ['idProducto'],
 components: {},
 data() {
-    return {
-        Favorito: false,
-    }
+    return {}
 },
 watch: {
     'idProducto': function(newQ, oldQ) {
@@ -23,18 +21,12 @@ created() {
 },
 methods: {
     async loadFavorite(idProducto) {
-        let { data: Favoritos, error } = await supabase
-        .from('Favoritos')
-        .select("*")
-        .eq('idProducto', idProducto)
-
-        if (Favoritos.length > 0) this.Favorito = true;
-        else this.Favorito = false;
+        this.$store.dispatch('fetchFavorites');
     },
     async manageFavorite() {
         const { data: { user } } = await supabase.auth.getUser()
 
-        if (this.Favorito) {
+        if (this.$store.state.favoritesProducts.some(x => x.idProducto == this.idProducto)) {
             // Eliminar del favorito
             const { error } = await supabase
             .from('Favoritos')
@@ -42,7 +34,6 @@ methods: {
             .eq('idProducto', this.idProducto)
 
             if (error) push.error(error.message);
-            else this.Favorito = false;
         } 
         else { 
             // Guardar el favorito
@@ -54,8 +45,9 @@ methods: {
             .select()
 
             if (error) push.error(error.message);
-            else this.Favorito = true;
         }
+
+        this.$store.dispatch('fetchFavorites');
     } 
 }
 };

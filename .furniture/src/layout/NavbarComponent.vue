@@ -26,7 +26,7 @@
       <Button size="large" @click="openOrders()" icon="pi pi-truck" severity="secondary" class="text-black-alpha-90 mx-1 rounded-5" text rounded />
       <Button size="large" @click="openProfile()" icon="pi pi-user" severity="secondary" class="text-black-alpha-90 mx-1 rounded-5" text rounded />
       <Button size="large" @click="openFavorites()" icon="pi pi-heart" severity="secondary" class="text-black-alpha-90 mx-1 rounded-5" text rounded />
-      <Button size="large" @click="openCart()" icon="pi pi-shopping-bag" severity="secondary"
+      <Button size="large" @click="openCart()" v-badge="2" icon="pi pi-shopping-bag" severity="secondary"
         class="text-black-alpha-90 mx-1 rounded-5" text rounded />
     </div>
     <!-- CARRITO -->
@@ -39,19 +39,19 @@
       </template>
       <div class="flex flex-column h-full">
         <div class="overflow-y-auto">
-          <div
+          <div v-for="item in $store.state.cartProducts"
             class="border-1 mb-3 border-round-sm p-2 border-200 shadow-1 hover:shadow-none hover:surface-100 transition-duration-150 transition-colors cursor-pointer flex flex-wrap gap-2 justify-content-start"
             rounded>
             <div :style="{ backgroundImage: `url(${('/src/assets/empty-img.png')})` }" class="cart-product" />
-            <div class="cart-product-summary" style="max-width:60%; height: 90px">
+            <div class="cart-product-summary" style="width:60%; height: 90px">
               <div class="text-sm	mt-1 font-semibold white-space-nowrap overflow-hidden text-overflow-ellipsis">
-                Producto Nombre asdsadsa dsad sasadsadsadsa
+                {{ item.nombreproducto }}
               </div>
               <div class="text-md	mt-2 font-bold white-space-nowrap overflow-hidden text-overflow-ellipsis">
-                $80.2DOP
+                ${{ item.precio }}DOP
               </div>
               <div class="flex text-xs cart-quantity justify-content-between" style="margin-top: 15px">
-                <InputNumber v-model="value" size="small" inputStyle="font-size: 0.75rem; padding: 0px;" :min="1"
+                <InputNumber v-model="item.cantidad" @input="changeCantidad(item)" size="small" inputStyle="font-size: 0.75rem; padding: 0px;" :min="1"
                   :max="100" showButtons buttonLayout="horizontal" decrementButtonClassName="cart-quantity"
                   incrementButtonClassName="cart-quantity">
                   <template #incrementbuttonicon>
@@ -71,7 +71,9 @@
           <div class="w-full px-3">
             <div class="flex justify-content-between mb-2">
               <div class="text-base text-black-alpha-90 font-bold">Total:</div>
-              <div class="text-lg text-black-alpha-90 font-bold">$4965DOP</div>
+              <div class="text-lg text-black-alpha-90 font-bold">
+                ${{ $store.state.cartProducts.reduce((total, item) => total + (item.precio * item.cantidad), 0).toFixed(2) }}DOP
+              </div>
             </div>
             <Button label="Proceder al Pago" class="w-full mt-2 hover:teal-100 transition-duration-150 transition-colors" />
           </div>
@@ -89,7 +91,7 @@
       </template>
       <div class="flex flex-column h-full">
         <div class="overflow-y-auto">
-          <div v-for="item in favoriteProducts"
+          <div v-for="item in $store.state.favoritesProducts"
             class="border-1 mb-3 border-round-sm p-2 border-200 shadow-1 hover:shadow-none hover:surface-100 transition-duration-150 transition-colors cursor-pointer flex flex-wrap gap-2 justify-content-start"
             rounded>
             <div :style="{ backgroundImage: `url(${('/src/assets/empty-img.png')})` }" class="cart-product" />
@@ -98,10 +100,11 @@
                 {{ item.NombreProducto }}
               </div>
               <div class="text-md	mt-1 font-bold white-space-nowrap overflow-hidden text-overflow-ellipsis">
-                ${{ item.Precio }}DOP
+                ${{ item.Precio.toFixed(2) }}DOP
               </div>
               <div class="flex text-xs cart-quantity justify-content-start gap-2 mt-3">
-                <Button icon="pi pi-shopping-bag" size="small" style="padding: 4px 14px" severity="primary" />
+                <Button @click="removeToCart(item)" v-if="$store.state.cartProducts.some(x => x.idproducto == item.idProducto)"  icon="pi pi-shopping-bag" size="small" style="padding: 4px 14px" severity="primary" />
+                <Button @click="addToCart(item)" v-else icon="pi pi-shopping-bag" size="small" style="padding: 4px 14px" outlined severity="primary" />
                 <Button icon="fa-solid fa-heart" size="small" style="padding: 4px 14px" severity="secondary" @click="removeFavorite(item.idProducto)" />
               </div>
             </div>
@@ -125,17 +128,19 @@ export default {
       productos: [],
       productosFiltrados: [],
       favoriteProducts: [],
+      cartProducts: [],
     }
   },
   watch: {
 
   },
   mounted() {
-    
+
   },
   created() {
     this.loadProducts();
     this.loadFavoriteProducts();
+    this.loadCarrito();
   },
   methods: {
     searchSuggestion(event) {
@@ -147,12 +152,73 @@ export default {
         });
       }
     },
+    async addToCart(Producto) {
+        let { data: Carritos, error } = await supabase
+        .from('Carritos')
+        .select('idCarrito')
+        .eq('Activo', true)
+        .single()
+
+        if (error) {
+            push.error(error.message)
+        }
+        else {           
+            const { data, error } = await supabase
+            .from('ProductosCarrito')
+            .insert([
+                { idProducto: Producto.idProducto, idCarrito: Carritos.idCarrito, Precio: Producto.Precio, Cantidad: 1 },
+            ])
+            .select()
+
+            if (error) {
+                push.error(error.message)
+            }
+            else {
+                this.$store.dispatch('fetchCart');
+                push.success(`Se ha agregado "${Producto.NombreProducto}" al carrito`)
+            }
+        }
+    },
+    async removeToCart(Producto) {
+        let { data: Carritos, error } = await supabase
+        .from('Carritos')
+        .select('idCarrito')
+        .eq('Activo', true)
+        .single()
+
+        if (error) {
+            push.error(error.message)
+        }
+        else {            
+            const { error } = await supabase
+            .from('ProductosCarrito')
+            .delete()
+            .eq('idProducto', Producto.idProducto)
+            .eq('idCarrito', Carritos.idCarrito)
+
+            if (error) {
+                push.error(error.message)
+            }
+            else {
+                this.$store.dispatch('fetchCart');
+                push.success(`Se ha retirado "${Producto.NombreProducto}" del carrito`)
+            }
+        }
+    },
     async loadFavoriteProducts() {
-      let { data, error } = await supabase.rpc('loadfavoritesproducts')
-      
-      if (data) {
-        this.favoriteProducts = data;
-      }
+      this.$store.dispatch('fetchFavorites');
+    },
+    async loadCarrito() {
+      this.$store.dispatch('fetchCart');
+    },
+    async changeCantidad(item) {
+      const { data, error } = await supabase
+        .from('ProductosCarrito')
+        .update({ Cantidad: item.cantidad })
+        .eq('idProductoCarrito', item.idproductocarrito)
+        .select()
+
+      if (error) push.error(error.message);
     },
     async removeFavorite(idProducto) {
       const { error } = await supabase
@@ -161,7 +227,7 @@ export default {
       .eq('idProducto', idProducto)
 
       if (error) push.error(error.message);
-      else this.loadFavoriteProducts();
+      else this.$store.dispatch('fetchFavorites');
     },  
     async loadProducts() {
       let { data: Productos, error } = await supabase
@@ -206,7 +272,7 @@ export default {
         return;
       } 
       else {
-        this.loadFavoriteProducts();
+        this.$store.dispatch('fetchFavorites');
         this.favoriteSidebar = true;
       }
     },
@@ -217,6 +283,7 @@ export default {
         return;
       } 
       else {
+        this.$store.dispatch('fetchCart');
         this.cartSidebar = true;
       }
     },

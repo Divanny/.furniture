@@ -2,9 +2,12 @@ import { createApp } from 'vue'
 import App from './App.vue'
 
 import router from './router'
+import store from './store'
+
 import PrimeVue from 'primevue/config';
 import Tooltip from 'primevue/tooltip';
 import { createNotivue } from 'notivue'
+import BadgeDirective from 'primevue/badgedirective';
 import 'notivue/notifications.css' 
 import 'notivue/animations.css'
 import 'primevue/resources/themes/lara-light-teal/theme.css'
@@ -27,7 +30,9 @@ const app = createApp(App)
 
 app.use(notivue)
 app.use(router)
+app.use(store);
 app.use(PrimeVue);
 app.directive('tooltip', Tooltip);
+app.directive('badge', BadgeDirective);
 
 app.mount('#app')

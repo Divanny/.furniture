@@ -16,31 +16,31 @@
                         <div class="relative w-full sm:w-16rem xl:w-14rem block xl:block mx-auto border-round">
                             <div :style="{ backgroundImage: `url(${('/src/assets/empty-img.png')})` }" class="border-round-3xl h-10rem w-full bg-cover bg-no-repeat bg-center" />
                             <div class="absolute top-0 right-0 m-2 cart-quantity">
-                                <Button v-if="item.favorito" icon="fa-solid fa-heart" size="small" style="padding: 0px 12px; width: 2rem; height: 2rem;" class="bg-white border-none text-black-alpha-90" rounded severity="secondary"  />
-                                <Button v-else icon="fa-regular fa-heart" size="small" style="padding: 0px 12px; width: 2rem; height: 2rem;" class="bg-white border-none text-black-alpha-90" rounded severity="secondary"  />
+                                <FavoriteComponent :idProducto="item.idProducto" :id="item.idProducto"/>
                             </div>
                         </div>
                         <!-- <img class="w-9 sm:w-16rem xl:w-10rem shadow-2 block xl:block mx-auto border-round" :src="`https://primefaces.org/cdn/primevue/images/product/${item.image}`" :alt="item.name" /> -->
                         <div class="flex flex-column sm:flex-row justify-content-between align-items-center xl:align-items-start flex-1 gap-4 h-9rem my-2">
                             <div class="flex flex-column align-items-center sm:align-items-start gap-3 h-full">
                                 <div>
-                                    <div class="text-2xl mb-1 font-bold text-700">{{ item.NombreProducto }}</div>
+                                    <div class="text-2xl mb-1 font-bold text-700 cursor-pointer" @click="$router.push(`/Producto/${item.idProducto}`)">{{ item.NombreProducto }}</div>
                                     <div class="flex align-items-center justify-content-start gap-2">
-                                        <i class="text-sm"></i>
-                                        <div class="font-semibold text-sm">{{ item.NombreCategoria }}</div>
+                                        <i :class="item.Categoria.Icono + ' text-sm'"></i>
+                                        <div class="font-semibold text-sm">{{ item.Categoria.NombreCategoria }}</div>
                                     </div>
                                 </div>
                                 <Rating :modelValue="item.Valoracion" readonly :cancel="false"></Rating>
                                 <div class="flex align-items-center gap-3 mt-auto">
                                     <div class="text-xs text-red-500 font-bold" v-if="item.Disponible == 0">No disponible</div>
                                     <div class="text-xs text-green-600 font-bold" v-else-if="item.Disponible > 10">Disponible</div>
-                                    <div class="text-xs text-orange-500 font-bold" v-else>Solo quedan 10 disponibles</div>
+                                    <div class="text-xs text-orange-500 font-bold" v-else>Solo quedan {{ item.Disponible }} disponibles</div>
                                 </div>
                             </div>
                             <div class="flex sm:flex-column align-items-center sm:align-items-end gap-3 sm:gap-2 h-full">
-                                <div class="text-2xl font-bold text-700">${{ item.Precio }}DOP</div>
-                                <Button icon="pi pi-eye" class="p-0 w-2rem h-2rem mt-auto bg-white text-black-alpha-80 font-bold border-1" severity="secondary" size="small" rounded></Button>
-                                <Button icon="pi pi-shopping-bag" class="p-0 w-2rem h-2rem" v-tooltip.top="'Agregar al carrito'" size="small" rounded :disabled="item.inventoryStatus === 'OUTOFSTOCK'"></Button>
+                                <div class="text-2xl font-bold text-700">${{ item.Precio.toFixed(2) }}DOP</div>
+                                <Button icon="pi pi-eye" @click="$router.push(`/Producto/${item.idProducto}`)" class="p-0 w-2rem h-2rem mt-auto bg-white text-black-alpha-80 font-bold border-1" severity="secondary" size="small" rounded></Button>
+                                <Button v-if="$store.state.cartProducts.some(x => x.idproducto == item.idProducto)" @click="removeToCart(item)" icon="pi pi-shopping-bag" class="p-0 w-2rem h-2rem" v-tooltip.top="'Retirar del carrito'" size="small" rounded :disabled="item.Disponible == 0"></Button>
+                                <Button v-else icon="pi pi-shopping-bag" @click="addToCart(item)" class="p-0 w-2rem h-2rem" v-tooltip.top="'Agregar al carrito'" size="small" rounded outlined :disabled="item.Disponible == 0"></Button>
                             </div>
                         </div>
                     </div>
@@ -51,11 +51,11 @@
         <template #grid="slotProps">
             <div class="grid grid-nogutter">
                 <div v-for="(item, index) in slotProps.items" :key="index" class="col-12 sm:col-6 lg:col-4 xl:col-3 p-2">
-                    <div class="m-2 border-round-lg	cursor-pointer relative">
+                    <div class="m-2 border-round-lg	cursor-pointer relative" @click="$router.push(`/Producto/${item.idProducto}`)">
                         <div :style="{ backgroundImage: `url(${('/src/assets/empty-img.png')})` }" class="border-round-3xl h-15rem w-full bg-cover bg-no-repeat bg-center" />
                         <div class="mt-2 font-bold text-sm white-space-nowrap overflow-hidden text-overflow-ellipsis w-full">{{ item.NombreProducto }}</div>
-                        <div class="mb-2 mt-1 text-xs white-space-nowrap overflow-hidden text-overflow-ellipsis w-full">{{ item.NombreCategoria }}</div>
-                        <div class="font-bold text-base">${{ item.Precio }}DOP</div>
+                        <div class="mb-2 mt-1 text-xs white-space-nowrap overflow-hidden text-overflow-ellipsis w-full"><i :class="item.Categoria.Icono + ' text-sm mr-2'"></i>{{ item.Categoria.NombreCategoria }}</div>
+                        <div class="font-bold text-base">${{ item.Precio.toFixed(2) }}DOP</div>
                         <div class="absolute top-0 right-0 m-3 cart-quantity">
                             <FavoriteComponent :idProducto="item.idProducto" :id="item.idProducto"/>
                         </div>
@@ -141,23 +141,81 @@ export default {
     this.loadProducts();    
   },
   methods: {
+    async addToCart(Producto) {
+        let { data: Carritos, error } = await supabase
+        .from('Carritos')
+        .select('idCarrito')
+        .eq('Activo', true)
+        .single()
+
+        if (error) {
+            push.error(error.message)
+        }
+        else {           
+            const { data, error } = await supabase
+            .from('ProductosCarrito')
+            .insert([
+                { idProducto: Producto.idProducto, idCarrito: Carritos.idCarrito, Precio: Producto.Precio, Cantidad: 1 },
+            ])
+            .select()
+
+            if (error) {
+                push.error(error.message)
+            }
+            else {
+                this.$store.dispatch('fetchCart');
+                push.success(`Se ha agregado "${Producto.NombreProducto}" al carrito`)
+            }
+        }
+    },
+    async removeToCart(Producto) {
+        let { data: Carritos, error } = await supabase
+        .from('Carritos')
+        .select('idCarrito')
+        .eq('Activo', true)
+        .single()
+
+        if (error) {
+            push.error(error.message)
+        }
+        else {            
+            const { error } = await supabase
+            .from('ProductosCarrito')
+            .delete()
+            .eq('idProducto', Producto.idProducto)
+            .eq('idCarrito', Carritos.idCarrito)
+
+            if (error) {
+                push.error(error.message)
+            }
+            else {
+                this.$store.dispatch('fetchCart');
+                push.success(`Se ha retirado "${Producto.NombreProducto}" del carrito`)
+            }
+        }
+    },
     async loadProducts() {
         if (this.busqueda) {
-            let { data: Productos, error } = await supabase
-            .from('Productos')
-            .select("*")
-            .textSearch('NombreProducto',  `'${this.busqueda}'`)
-    
+            let { data, error } = await supabase
+            .rpc('searchproduct', {
+                texto_busqueda: this.busqueda
+            })
+            console.log(data);
             if (error) {
-    
+                push.error(error.message)
             }
-            else this.products = Productos;
+            else this.products = data;
         }
         else {
             let { data: Productos, error } = await supabase
             .from('Productos')
-            .select("*")
-    
+            .select(`
+                    *,
+                    Categoria (
+                        NombreCategoria,
+                        Icono
+                    )
+                `)
             if (error) push.error(error.message);
             else this.products = Productos;
         }
