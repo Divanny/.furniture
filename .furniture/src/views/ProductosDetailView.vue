@@ -22,9 +22,8 @@
       <div class="flex justify-content-between align-items-center">
         <div>
           <div class="text-xl font-bold">{{ producto.NombreProducto }}</div>
-          
         </div>
-        <div class="text-2xl font-bold">${{ producto.Precio.toFixed(2) }}DOP</div>
+        <div class="text-2xl font-bold">${{ (producto.Precio) ? producto.Precio.toFixed(2) : '0' }}DOP</div>
       </div>
       <div class="flex align-items-center justify-content-start gap-2 mb-3 mt-1">
         <i :class="producto.Categoria.Icono + ' text-sm'"></i>
@@ -49,7 +48,10 @@
       </div>
       <div class="mt-auto">
         <hr class="mb-3 border-top-1 border-none surface-border" />
-        <Button severity="primary" class="w-full mt-2 transition-duration-150 transition-colors justify-content-center">
+        <Button severity="primary" v-tooltip.top="'Retirar del carrito'" v-if="$store.state.cartProducts.some(x => x.idproducto == producto.idProducto)" :disabled="true" class="w-full mt-2 transition-duration-150 transition-colors justify-content-center" @click="addToCart(producto)">
+          <i class="pi pi-shopping-bag mx-2" />Agregar al carrito
+        </Button>
+        <Button severity="primary" v-else class="w-full mt-2 transition-duration-150 transition-colors justify-content-center" @click="addToCart(producto)">
           <i class="pi pi-shopping-bag mx-2" />Agregar al carrito
         </Button>
       </div>
@@ -95,6 +97,33 @@ export default {
   mounted() {
   },
   methods: {
+    async addToCart(Producto) {
+        let { data: Carritos, error } = await supabase
+        .from('Carritos')
+        .select('idCarrito')
+        .eq('Activo', true)
+        .single()
+
+        if (error) {
+            push.error(error.message)
+        }
+        else {           
+            const { data, error } = await supabase
+            .from('ProductosCarrito')
+            .insert([
+                { idProducto: Producto.idProducto, idCarrito: Carritos.idCarrito, Precio: Producto.Precio, Cantidad: this.cantidad },
+            ])
+            .select()
+
+            if (error) {
+                push.error(error.message)
+            }
+            else {
+                this.$store.dispatch('fetchCart');
+                push.success(`Se ha agregado "${Producto.NombreProducto}" al carrito`)
+            }
+        }
+    },
     async loadProduct() {
       let { data: Producto, error } = await supabase
         .from('Productos')
@@ -115,7 +144,6 @@ export default {
           { label: 'Productos' }, 
           { label: Producto.NombreProducto, route: this.$router.options.history.state.current }, 
         ]
-        console.log(this.itemsBread)
       }
     },
   }

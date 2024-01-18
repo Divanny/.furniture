@@ -4,6 +4,7 @@ import ProductosView from '../views/ProductosView.vue'
 import ProductosDetailView from '../views/ProductosDetailView.vue'
 import LoginView from '../views/LoginView.vue'
 import RegisterView from '../views/RegisterView.vue'
+import PagoView from '../views/PagoView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -34,6 +35,11 @@ const router = createRouter({
       name: 'ProductosDetail',
       component: ProductosDetailView,
       props: true
+    },
+    {
+      path: '/Pago',
+      name: 'Pago',
+      component: PagoView
     },
   ]
 })

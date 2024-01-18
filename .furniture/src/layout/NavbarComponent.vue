@@ -26,7 +26,7 @@
       <Button size="large" @click="openOrders()" icon="pi pi-truck" severity="secondary" class="text-black-alpha-90 mx-1 rounded-5" text rounded />
       <Button size="large" @click="openProfile()" icon="pi pi-user" severity="secondary" class="text-black-alpha-90 mx-1 rounded-5" text rounded />
       <Button size="large" @click="openFavorites()" icon="pi pi-heart" severity="secondary" class="text-black-alpha-90 mx-1 rounded-5" text rounded />
-      <Button size="large" @click="openCart()" v-badge="2" icon="pi pi-shopping-bag" severity="secondary"
+      <Button size="large" @click="openCart()" v-badge="2" icon="pi pi-shopping-bag p-overlay-badge" severity="secondary"
         class="text-black-alpha-90 mx-1 rounded-5" text rounded />
     </div>
     <!-- CARRITO -->
@@ -61,7 +61,7 @@
                     <span class="pi pi-minus" />
                   </template>
                 </InputNumber>
-                <Button icon="pi pi-trash" size="small" style="padding: 0px 12px" severity="danger" outlined />
+                <Button icon="pi pi-trash" @click="removeToCart(item)" size="small" style="padding: 0px 12px" severity="danger" outlined />
               </div>
             </div>
           </div>
@@ -75,7 +75,7 @@
                 ${{ $store.state.cartProducts.reduce((total, item) => total + (item.precio * item.cantidad), 0).toFixed(2) }}DOP
               </div>
             </div>
-            <Button label="Proceder al Pago" class="w-full mt-2 hover:teal-100 transition-duration-150 transition-colors" />
+            <Button label="Proceder al Pago" @click="{ $router.push('/Pago'); cartSidebar = false } " class="w-full mt-2 hover:teal-100 transition-duration-150 transition-colors" />
           </div>
         </div>
       </div>
@@ -193,7 +193,7 @@ export default {
             const { error } = await supabase
             .from('ProductosCarrito')
             .delete()
-            .eq('idProducto', Producto.idProducto)
+            .eq('idProducto', Producto.idProducto || Producto.idproducto)
             .eq('idCarrito', Carritos.idCarrito)
 
             if (error) {
@@ -201,7 +201,7 @@ export default {
             }
             else {
                 this.$store.dispatch('fetchCart');
-                push.success(`Se ha retirado "${Producto.NombreProducto}" del carrito`)
+                push.success(`Se ha retirado "${Producto.NombreProducto || Producto.nombreproducto}" del carrito`)
             }
         }
     },
