@@ -45,9 +45,19 @@ const signUpNewUser = async () => {
             }
         });
 
+        const usuario = data;
+
         if (error) push.error(error.message);
         else { 
             push.success('Registro de usuario exitoso');
+
+            const { data, error } = await supabase
+            .from('Carritos')
+            .insert([
+                { idUsuario: usuario.user.id, Activo: true },
+            ])
+            .select()
+          
             router.push('/');
         }
     }

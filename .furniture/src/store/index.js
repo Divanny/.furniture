@@ -6,6 +6,7 @@ export default createStore({
     cartProducts: [],
     favoritesProducts: [],
     loading: false,
+    authenticated: false,
   },
   mutations: {
     setCartProducts(state, cartProducts) {
@@ -16,6 +17,9 @@ export default createStore({
     },
     setLoading(state, loading) {
       state.loading = loading;
+    },
+    setAuthenticated(state, authenticated) {
+      state.authenticated = authenticated;
     },
   },
   actions: {
@@ -37,6 +41,9 @@ export default createStore({
   getters: {
     getCartProducts(state) {
       return state.cartProducts;
+    },
+    getFavoritesProducts(state) {
+      return state.favoritesProducts;
     },
     getFavoritesProducts(state) {
       return state.favoritesProducts;

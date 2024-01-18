@@ -5,6 +5,7 @@ import ProductosDetailView from '../views/ProductosDetailView.vue'
 import LoginView from '../views/LoginView.vue'
 import RegisterView from '../views/RegisterView.vue'
 import PagoView from '../views/PagoView.vue'
+import PedidosView from '../views/PedidosView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -40,6 +41,11 @@ const router = createRouter({
       path: '/Pago',
       name: 'Pago',
       component: PagoView
+    },
+    {
+      path: '/Pedidos',
+      name: 'Pedidos',
+      component: PedidosView
     },
   ]
 })

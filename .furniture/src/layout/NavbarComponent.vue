@@ -24,10 +24,10 @@
     <!-- ITEMS -->
     <div class="d-flex">
       <Button size="large" @click="openOrders()" icon="pi pi-truck" severity="secondary" class="text-black-alpha-90 mx-1 rounded-5" text rounded />
-      <Button size="large" @click="openProfile()" icon="pi pi-user" severity="secondary" class="text-black-alpha-90 mx-1 rounded-5" text rounded />
+      <ProfileButton />
       <Button size="large" @click="openFavorites()" icon="pi pi-heart" severity="secondary" class="text-black-alpha-90 mx-1 rounded-5" text rounded />
       <Button size="large" @click="openCart()" v-badge="2" icon="pi pi-shopping-bag p-overlay-badge" severity="secondary"
-        class="text-black-alpha-90 mx-1 rounded-5" text rounded />
+      class="text-black-alpha-90 mx-1 rounded-5" text rounded />
     </div>
     <!-- CARRITO -->
     <Sidebar v-model:visible="cartSidebar" position="right">
@@ -39,6 +39,7 @@
       </template>
       <div class="flex flex-column h-full">
         <div class="overflow-y-auto">
+          <div v-if="$store.state.cartProducts.length == 0" class=""><div class="flex justify-content-start gap-2 flex-wrap"><div>No existen productos en el carrito.</div><div @click="goToShop()" class="text-primary cursor-pointer font-bold underline">Empezar a explorar</div></div></div>
           <div v-for="item in $store.state.cartProducts"
             class="border-1 mb-3 border-round-sm p-2 border-200 shadow-1 hover:shadow-none hover:surface-100 transition-duration-150 transition-colors cursor-pointer flex flex-wrap gap-2 justify-content-start"
             rounded>
@@ -75,7 +76,7 @@
                 ${{ $store.state.cartProducts.reduce((total, item) => total + (item.precio * item.cantidad), 0).toFixed(2) }}DOP
               </div>
             </div>
-            <Button label="Proceder al Pago" @click="{ $router.push('/Pago'); cartSidebar = false } " class="w-full mt-2 hover:teal-100 transition-duration-150 transition-colors" />
+            <Button label="Proceder al Pago" @click="goToPay()" class="w-full mt-2 hover:teal-100 transition-duration-150 transition-colors" />
           </div>
         </div>
       </div>
@@ -91,6 +92,7 @@
       </template>
       <div class="flex flex-column h-full">
         <div class="overflow-y-auto">
+          <div v-if="$store.state.favoritesProducts.length == 0" class=""><div class="flex justify-content-start gap-2 flex-wrap"><div>No existen productos en favoritos.</div><div @click="goToShop()" class="text-primary cursor-pointer font-bold underline">Empezar a explorar</div></div></div>
           <div v-for="item in $store.state.favoritesProducts"
             class="border-1 mb-3 border-round-sm p-2 border-200 shadow-1 hover:shadow-none hover:surface-100 transition-duration-150 transition-colors cursor-pointer flex flex-wrap gap-2 justify-content-start"
             rounded>
@@ -117,9 +119,10 @@
 <script>
 import { push } from 'notivue'
 import supabase from '../lib/supabaseClient'
+import ProfileButton from './ProfileButton.vue';
 
 export default {
-  components: {},
+  components: {ProfileButton},
   data() {
     return {
       cartSidebar: false,
@@ -129,13 +132,17 @@ export default {
       productosFiltrados: [],
       favoriteProducts: [],
       cartProducts: [],
+      itemsProfileMenu: [
+          {
+              label: 'Refresh',
+              icon: 'pi pi-refresh'
+          },
+          {
+              label: 'Cerrar sesión',
+              icon: 'pi pi-sign-out'
+          }
+      ]
     }
-  },
-  watch: {
-
-  },
-  mounted() {
-
   },
   created() {
     this.loadProducts();
@@ -143,6 +150,16 @@ export default {
     this.loadCarrito();
   },
   methods: {
+    goToShop() {
+      this.$router.push('/Productos');
+      this.cartSidebar = false;
+      this.favoriteSidebar = false;
+    },
+    goToPay() {
+      this.$router.push('/Pago');
+      this.cartSidebar = false;
+      this.favoriteSidebar = false;
+    },
     searchSuggestion(event) {
       if (!event.query.trim().length) {
         this.productosFiltrados = [...this.productos];
@@ -252,17 +269,17 @@ export default {
         return;
       } 
       else {
-        
+        this.$router.push('/Pedidos')
       }
     },
-    async openProfile() {
+    async openProfile(event) {
       let authenticated = await this.validateSession();
       if (!authenticated) {
         this.$router.push('/SignIn');
         return;
       } 
       else {
-        
+        this.$refs.menu[0].toggle(event)
       }
     },
     async openFavorites() {

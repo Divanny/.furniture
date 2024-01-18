@@ -51,11 +51,13 @@
         <template #grid="slotProps">
             <div class="grid grid-nogutter">
                 <div v-for="(item, index) in slotProps.items" :key="index" class="col-12 sm:col-6 lg:col-4 xl:col-3 p-2">
-                    <div class="m-2 border-round-lg	cursor-pointer relative" @click="$router.push(`/Producto/${item.idProducto}`)">
-                        <div :style="{ backgroundImage: `url(${('/src/assets/empty-img.png')})` }" class="border-round-3xl h-15rem w-full bg-cover bg-no-repeat bg-center" />
-                        <div class="mt-2 font-bold text-sm white-space-nowrap overflow-hidden text-overflow-ellipsis w-full">{{ item.NombreProducto }}</div>
-                        <div class="mb-2 mt-1 text-xs white-space-nowrap overflow-hidden text-overflow-ellipsis w-full"><i :class="item.Categoria.Icono + ' text-sm mr-2'"></i>{{ item.Categoria.NombreCategoria }}</div>
-                        <div class="font-bold text-base">${{ item.Precio.toFixed(2) }}DOP</div>
+                    <div class="m-2 border-round-lg	cursor-pointer relative">
+                        <div  @click="$router.push(`/Producto/${item.idProducto}`)">
+                            <div :style="{ backgroundImage: `url(${('/src/assets/empty-img.png')})` }" class="border-round-3xl h-15rem w-full bg-cover bg-no-repeat bg-center" />
+                            <div class="mt-2 font-bold text-sm white-space-nowrap overflow-hidden text-overflow-ellipsis w-full">{{ item.NombreProducto }}</div>
+                            <div class="mb-2 mt-1 text-xs white-space-nowrap overflow-hidden text-overflow-ellipsis w-full"><i :class="item.Categoria.Icono + ' text-sm mr-2'"></i>{{ item.Categoria.NombreCategoria }}</div>
+                            <div class="font-bold text-base">${{ item.Precio.toFixed(2) }}DOP</div>
+                        </div>
                         <div class="absolute top-0 right-0 m-3 cart-quantity">
                             <FavoriteComponent :idProducto="item.idProducto" :id="item.idProducto"/>
                         </div>

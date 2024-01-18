@@ -54,6 +54,7 @@ export default {
         
         if (error) push.error(error.message);
         else { 
+            this.$store.commit('setAuthenticated', data.session.user)
             push.success('Inicio de sesión exitoso');
             this.$router.push('/');
         }
