@@ -32,6 +32,13 @@ const router = useRouter()
 const menu = ref();
 const itemsProfileMenu = ref([
     {
+        label: 'Administrar productos',
+        icon: 'pi pi-cog',
+        command: () => {
+            router.push('/AdministrarProductos')
+        }
+    },
+    {
         label: 'Mis pedidos',
         icon: 'pi pi-truck',
         command: () => {
@@ -45,7 +52,10 @@ const itemsProfileMenu = ref([
             authenticated.value = null;
             const { error } = await supabase.auth.signOut();
             if (error) push.error(error.message)
-            else push.success("Ha cerrado sesión exitosamente")
+            else { 
+                push.success("Ha cerrado sesión exitosamente")
+                store.commit('setAuthenticated', null)
+            }
         }
     }
 ]);
@@ -66,7 +76,8 @@ const validateSession = async() => {
         store.commit('setAuthenticated', data.session.user)
     }
     else {
-        store.commit('setAuthenticated', null)
+        store.commit('setAuthenticated', null);
+        router.push('/')
     }
 }
 const sendToSignIn = () => {

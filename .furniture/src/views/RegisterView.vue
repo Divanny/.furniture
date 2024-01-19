@@ -57,7 +57,9 @@ const signUpNewUser = async () => {
                 { idUsuario: usuario.user.id, Activo: true },
             ])
             .select()
-          
+            
+            this.$store.commit('setAuthenticated', data.session.user)
+
             router.push('/');
         }
     }

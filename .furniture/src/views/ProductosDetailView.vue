@@ -17,7 +17,7 @@
     <Button label="Volver" @click="$router.go(-1)" text class="mx-3" size="small" severity="secondary" icon="fa-solid fa-arrow-left" />
   </div>
   <div class="grid my-4 gap-4">
-    <div :style="{ backgroundImage: `url(${('/src/assets/empty-img.png')})` }" class="col-12 md:col-6 border-round-3xl h-28rem bg-cover bg-no-repeat bg-center">    </div>
+    <div :style="{ backgroundImage: `url(${($store.state.storageUrl + producto.idProducto + '.png')})` }" class="col-12 md:col-6 border-round-3xl h-28rem bg-cover bg-no-repeat bg-center">    </div>
     <div class="col flex flex-column">
       <div class="flex justify-content-between align-items-center">
         <div>

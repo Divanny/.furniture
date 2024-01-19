@@ -7,6 +7,7 @@ export default createStore({
     favoritesProducts: [],
     loading: false,
     authenticated: false,
+    storageUrl: import.meta.env.VITE_STORAGE_URL
   },
   mutations: {
     setCartProducts(state, cartProducts) {

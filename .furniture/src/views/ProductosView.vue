@@ -3,8 +3,7 @@
     <div v-if="busqueda" class="text-xl font-bold mx-3 my-4">Resultados para "{{ busqueda }}"</div>
     <DataView :value="products" :layout="layout" paginator :rows="10" :rowsPerPageOptions="[5, 10, 20, 50]">
         <template #header>
-            <div class="flex justify-content-between">
-                <Dropdown v-model="orderBy" :options="itemsOrderBy" showClear optionLabel="label" placeholder="Ordenar por" />
+            <div class="flex justify-content-end">
                 <DataViewLayoutOptions v-model="layout" />
             </div>
         </template>
@@ -14,7 +13,7 @@
                 <div v-for="(item, index) in slotProps.items" :key="index" class="col-12">
                     <div class="flex flex-column xl:flex-row xl:align-items-start px-4 py-3 gap-4" :class="{ 'border-top-1 surface-border': index !== 0 }">
                         <div class="relative w-full sm:w-16rem xl:w-14rem block xl:block mx-auto border-round">
-                            <div :style="{ backgroundImage: `url(${('/src/assets/empty-img.png')})` }" class="border-round-3xl h-10rem w-full bg-cover bg-no-repeat bg-center" />
+                            <div :style="{ backgroundImage: `url(${($store.state.storageUrl + item.idProducto + '.png')})` }" class="border-round-3xl h-10rem w-full bg-cover bg-no-repeat bg-center" />
                             <div class="absolute top-0 right-0 m-2 cart-quantity">
                                 <FavoriteComponent :idProducto="item.idProducto" :id="item.idProducto"/>
                             </div>
@@ -53,7 +52,7 @@
                 <div v-for="(item, index) in slotProps.items" :key="index" class="col-12 sm:col-6 lg:col-4 xl:col-3 p-2">
                     <div class="m-2 border-round-lg	cursor-pointer relative">
                         <div  @click="$router.push(`/Producto/${item.idProducto}`)">
-                            <div :style="{ backgroundImage: `url(${('/src/assets/empty-img.png')})` }" class="border-round-3xl h-15rem w-full bg-cover bg-no-repeat bg-center" />
+                            <div :style="{ backgroundImage: `url(${($store.state.storageUrl + item.idProducto + '.png')})` }" class="border-round-3xl h-15rem w-full bg-cover bg-no-repeat bg-center" />
                             <div class="mt-2 font-bold text-sm white-space-nowrap overflow-hidden text-overflow-ellipsis w-full">{{ item.NombreProducto }}</div>
                             <div class="mb-2 mt-1 text-xs white-space-nowrap overflow-hidden text-overflow-ellipsis w-full"><i :class="item.Categoria.Icono + ' text-sm mr-2'"></i>{{ item.Categoria.NombreCategoria }}</div>
                             <div class="font-bold text-base">${{ item.Precio.toFixed(2) }}DOP</div>

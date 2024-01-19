@@ -22,7 +22,7 @@
       <div class="border-1 border-round surface-border mb-2" v-for="item in $store.state.cartProducts">
         <div class="flex flex-column xl:flex-row xl:align-items-start px-4 py-3 gap-4">
           <div class="relative w-full sm:w-16rem xl:w-14rem block xl:block mx-auto border-round">
-              <div :style="{ backgroundImage: `url(${('/src/assets/empty-img.png')})` }" class="border-round-3xl h-10rem w-full bg-cover bg-no-repeat bg-center" />
+              <div :style="{ backgroundImage: `url(${($store.state.storageUrl + item.idproducto + '.png')})` }" class="border-round-3xl h-10rem w-full bg-cover bg-no-repeat bg-center" />
               <div class="absolute top-0 right-0 m-2 cart-quantity">
                   <FavoriteComponent :idProducto="item.idproducto" :id="item.idproducto"/>
               </div>

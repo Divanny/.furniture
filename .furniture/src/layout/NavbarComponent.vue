@@ -6,11 +6,11 @@
     </router-link>
     <!-- SEARCH BAR -->
     <div class="search-bar w-6 flex align-items-center">
-      <AutoComplete placeholder="Buscar productos..." @keyup.enter="search()" v-model="busqueda" style="" size="small" class="w-full" :suggestions="productosFiltrados" @complete="searchSuggestion">
+      <AutoComplete optionLabel="NombreProducto" placeholder="Buscar productos..."  @keyup.enter="search()" v-model="busqueda" style="" size="small" class="w-full" :suggestions="productosFiltrados" @complete="searchSuggestion">
         <template #option="slotProps">
           <div class="flex align-options-center">
-              <img src="/src/assets/empty-img.png" :class="`mr-2`" style="width: 20px" />
-              <div class="text-sm">{{ slotProps.option }}</div>
+              <img :src="$store.state.storageUrl + slotProps.option.idProducto + '.png'" :class="`mr-2`" style="width: 20px" />
+              <div class="text-sm">{{ slotProps.option.NombreProducto }}</div>
           </div>
         </template>
         <template #empty>
@@ -43,7 +43,7 @@
           <div v-for="item in $store.state.cartProducts"
             class="border-1 mb-3 border-round-sm p-2 border-200 shadow-1 hover:shadow-none hover:surface-100 transition-duration-150 transition-colors cursor-pointer flex flex-wrap gap-2 justify-content-start"
             rounded>
-            <div :style="{ backgroundImage: `url(${('/src/assets/empty-img.png')})` }" class="cart-product" />
+            <div :style="{ backgroundImage: `url(${($store.state.storageUrl + item.idproducto + '.png')})` }" class="cart-product" />
             <div class="cart-product-summary" style="width:60%; height: 90px">
               <div class="text-sm	mt-1 font-semibold white-space-nowrap overflow-hidden text-overflow-ellipsis">
                 {{ item.nombreproducto }}
@@ -96,7 +96,7 @@
           <div v-for="item in $store.state.favoritesProducts"
             class="border-1 mb-3 border-round-sm p-2 border-200 shadow-1 hover:shadow-none hover:surface-100 transition-duration-150 transition-colors cursor-pointer flex flex-wrap gap-2 justify-content-start"
             rounded>
-            <div :style="{ backgroundImage: `url(${('/src/assets/empty-img.png')})` }" class="cart-product" />
+            <div :style="{ backgroundImage: `url(${($store.state.storageUrl + item.idProducto + '.png')})` }" class="cart-product" />
             <div class="cart-product-summary" style="max-width:60%; height: 90px">
               <div class="text-sm	mt-1 font-semibold white-space-nowrap overflow-hidden text-overflow-ellipsis">
                 {{ item.NombreProducto }}
@@ -134,6 +134,10 @@ export default {
       cartProducts: [],
       itemsProfileMenu: [
           {
+              label: 'Administrar productos',
+              icon: 'pi pi-cog'
+          },
+          {
               label: 'Refresh',
               icon: 'pi pi-refresh'
           },
@@ -165,7 +169,7 @@ export default {
         this.productosFiltrados = [...this.productos];
       } else {
         this.productosFiltrados = this.productos.filter((producto) => {
-            return producto.toLowerCase().startsWith(event.query.toLowerCase());
+            return producto.NombreProducto.toLowerCase().startsWith(event.query.toLowerCase());
         });
       }
     },
@@ -249,9 +253,9 @@ export default {
     async loadProducts() {
       let { data: Productos, error } = await supabase
             .from('Productos')
-            .select("NombreProducto")
+            .select("idProducto, NombreProducto")
       if (Productos) {
-        this.productos = Productos.map(producto => producto.NombreProducto);
+        this.productos = Productos;
       }
     },
     async validateSession() {
@@ -309,7 +313,8 @@ export default {
         this.$router.push({ path: `/Productos` })
       }
       else {
-        this.$router.push({ path: `/Productos`, query: { q: this.busqueda } })
+        console.log(this.busqueda);
+        this.$router.push({ path: `/Productos`, query: { q: this.busqueda.NombreProducto } })
       }
     }
   }
