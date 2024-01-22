@@ -44,14 +44,16 @@
         <Carousel :value="trendingProducts" :numVisible="5" :numScroll="1" :responsiveOptions="responsiveOptions" circular
             :autoplayInterval="3000">
             <template #item="slotProps">
-                <div class="m-2 border-round-lg	cursor-pointer relative">
-                    <div :style="{ backgroundImage: `url(${($store.state.storageUrl + slotProps.data.idProducto + '.png')})` }"
-                        class="border-round-3xl h-15rem w-full bg-cover bg-no-repeat bg-center" />
-                    <div class="my-2 white-space-nowrap overflow-hidden text-overflow-ellipsis w-16rem">{{
-                        slotProps.data.NombreProducto }}</div>
-                    <div class="font-bold">${{ slotProps.data.Precio }}DOP</div>
+                <div class="m-2 mb-4 border-round-lg	cursor-pointer relative">
+                    <div @click="$router.push(`/Producto/${slotProps.data.idProducto}`)">
+                        <div :style="{ backgroundImage: `url(${($store.state.storageUrl + slotProps.data.idProducto + '.png')})` }"
+                            class="border-round-3xl h-15rem w-full bg-cover bg-no-repeat bg-center" />
+                        <div class="my-2 white-space-nowrap overflow-hidden text-overflow-ellipsis">{{
+                            slotProps.data.NombreProducto }}</div>
+                        <div class="font-bold">${{ slotProps.data.Precio }}DOP</div>
+                    </div>
                     <div class="absolute top-0 right-0 m-3 cart-quantity">
-                        <FavoriteComponent :idProducto="slotProps.data.idProducto" :id="slotProps.data.idProducto"/>
+                        <FavoriteComponent :idProducto="slotProps.data.idProducto" :id="slotProps.data.idProducto" />
                     </div>
                 </div>
             </template>
@@ -102,7 +104,7 @@ export default {
     methods: {
         async loadTrendindProducts() {
             let { data, error } = await supabase.rpc('loadProductosMasVendidos')
-            console.log(data);
+
             if (error) {
                 push.error(error.message)
             }

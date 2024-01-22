@@ -7,7 +7,8 @@ export default createStore({
     favoritesProducts: [],
     loading: false,
     authenticated: false,
-    storageUrl: import.meta.env.VITE_STORAGE_URL
+    storageUrl: import.meta.env.VITE_STORAGE_URL,
+    isMobile: false,
   },
   mutations: {
     setCartProducts(state, cartProducts) {
@@ -21,6 +22,9 @@ export default createStore({
     },
     setAuthenticated(state, authenticated) {
       state.authenticated = authenticated;
+    },
+    setIsMobile(state, isMobile) {
+      state.isMobile = isMobile;
     },
   },
   actions: {
@@ -42,9 +46,6 @@ export default createStore({
   getters: {
     getCartProducts(state) {
       return state.cartProducts;
-    },
-    getFavoritesProducts(state) {
-      return state.favoritesProducts;
     },
     getFavoritesProducts(state) {
       return state.favoritesProducts;

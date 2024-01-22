@@ -1,33 +1,94 @@
 <template>
-  <div class="navbar-container flex justify-content-between p-3 mb-2">
+  <div class="navbar-container flex justify-content-between align-items-center p-3 mb-2">
     <!-- LOGO -->
     <router-link to="/">
       <div class="logo" />
     </router-link>
+    <!-- MOBILE MENU -->
+    <Button size="large" @click="mobileMenu = true" icon="pi pi-bars" severity="secondary" v-if="$store.state.isMobile"
+      class="text-black-alpha-90 mx-1 rounded-5" text rounded />
+    <Sidebar v-model:visible="mobileMenu" v-if="$store.state.isMobile" header="Top Sidebar" position="right">
+      <template #header>
+        <div class="logo" />
+      </template>
+      <div class="flex flex-column h-full">
+        <div class="search-bar flex align-items-center justify-content-between my-2">
+          <AutoComplete optionLabel="NombreProducto" placeholder="Buscar productos..." @keyup.enter="search()"
+            v-model="busqueda" style="" size="small" class="w-full" :suggestions="productosFiltrados"
+            @complete="searchSuggestion">
+            <template #option="slotProps">
+              <div class="flex align-options-center">
+                <img :src="$store.state.storageUrl + slotProps.option.idProducto + '.png'" :class="`mr-2`"
+                  style="width: 20px" />
+                <div class="text-sm">{{ slotProps.option.NombreProducto }}</div>
+              </div>
+            </template>
+            <template #empty>
+              <div class="flex align-options-center">
+                <div class="text-sm px-3">No existen sugerencias</div>
+              </div>
+            </template>
+          </AutoComplete>
+          <Button icon="pi pi-search" @click="search()" severity="secondary"
+            class="text-black-alpha-90 ml-2 py-2 px-0 text-xs" style="height: 2rem;" size="small" text />
+        </div>
+        <div class="card flex justify-content-center">
+          <Menu :model="mobileMenuItems" class="w-full border-0" > 
+            <template #item="{ item, props }">
+
+              <a class="flex align-items-center justify-content-start mb-2 cursor-pointer px-1 py-3 gap-2 border-round text-700 hover:surface-100 hover:border-round transition-duration-150 transition-colors" v-bind="props.action">
+                  <span :class="item.icon" />
+                  <span class="ml-2">{{ item.label }}</span>
+                  <Badge v-if="item.badge" class="ml-auto" :value="item.badge" />
+                  <span v-if="item.shortcut" class="ml-auto border-1 surface-border border-round surface-100 text-xs p-1">{{ item.shortcut }}</span>
+              </a>
+            </template>
+          </Menu>
+        </div>
+        <div class="mt-auto">
+          <hr class="mb-2 border-top-1 border-none surface-border" />
+          <a v-if="$store.state.authenticated" class="no-underline	select-none flex align-items-center cursor-pointer p-2 gap-2 border-round text-700 hover:surface-100 transition-duration-150 transition-colors">
+            <Avatar :label="$store.state.authenticated.email[0]" shape="circle" />
+            <span class="font-bold">{{$store.state.authenticated.email}}</span>
+          </a>
+          <router-link to="/SignIn" @click="mobileMenu = false" v-else class="no-underline	 select-none flex align-items-center cursor-pointer p-2 gap-2 border-round text-700 hover:surface-100 transition-duration-150 transition-colors">
+            <Avatar icon="pi pi-user" shape="circle" />
+            <span class="font-bold">Iniciar Sesión</span>
+          </router-link>
+        </div>
+      </div>
+    </Sidebar>
+
     <!-- SEARCH BAR -->
-    <div class="search-bar w-6 flex align-items-center">
-      <AutoComplete optionLabel="NombreProducto" placeholder="Buscar productos..."  @keyup.enter="search()" v-model="busqueda" style="" size="small" class="w-full" :suggestions="productosFiltrados" @complete="searchSuggestion">
+    <div class="search-bar w-6 flex align-items-center" v-if="!$store.state.isMobile">
+      <AutoComplete optionLabel="NombreProducto" placeholder="Buscar productos..." @keyup.enter="search()"
+        v-model="busqueda" style="" size="small" class="w-full" :suggestions="productosFiltrados"
+        @complete="searchSuggestion" @item-select="search()">
         <template #option="slotProps">
           <div class="flex align-options-center">
-              <img :src="$store.state.storageUrl + slotProps.option.idProducto + '.png'" :class="`mr-2`" style="width: 20px" />
-              <div class="text-sm">{{ slotProps.option.NombreProducto }}</div>
+            <img :src="$store.state.storageUrl + slotProps.option.idProducto + '.png'" :class="`mr-2`"
+              style="width: 20px" />
+            <div class="text-sm">{{ slotProps.option.NombreProducto }}</div>
           </div>
         </template>
         <template #empty>
           <div class="flex align-options-center">
-              <div class="text-sm px-3">No existen sugerencias</div>
+            <div class="text-sm px-3">No existen sugerencias</div>
           </div>
         </template>
       </AutoComplete>
-      <Button icon="pi pi-search" @click="search()" severity="secondary" class="text-black-alpha-90 mx-2 py-2 px-0 text-xs" style="height: 2rem;" size="small" text  />
+      <Button icon="pi pi-search" @click="search()" severity="secondary"
+        class="text-black-alpha-90 mx-2 py-2 px-0 text-xs" style="height: 2rem;" size="small" text />
     </div>
     <!-- ITEMS -->
-    <div class="d-flex">
-      <Button size="large" @click="openOrders()" icon="pi pi-truck" severity="secondary" class="text-black-alpha-90 mx-1 rounded-5" text rounded />
+    <div class="d-flex" v-if="!$store.state.isMobile">
+      <Button size="large" @click="openOrders()" icon="pi pi-truck" severity="secondary"
+        class="text-black-alpha-90 mx-1 rounded-5" text rounded />
       <ProfileButton />
-      <Button size="large" @click="openFavorites()" icon="pi pi-heart" severity="secondary" class="text-black-alpha-90 mx-1 rounded-5" text rounded />
+      <Button size="large" @click="openFavorites()" icon="pi pi-heart" severity="secondary"
+        class="text-black-alpha-90 mx-1 rounded-5" text rounded />
       <Button size="large" @click="openCart()" v-badge="2" icon="pi pi-shopping-bag p-overlay-badge" severity="secondary"
-      class="text-black-alpha-90 mx-1 rounded-5" text rounded />
+        class="text-black-alpha-90 mx-1 rounded-5" text rounded />
     </div>
     <!-- CARRITO -->
     <Sidebar v-model:visible="cartSidebar" position="right">
@@ -39,11 +100,17 @@
       </template>
       <div class="flex flex-column h-full">
         <div class="overflow-y-auto">
-          <div v-if="$store.state.cartProducts.length == 0" class=""><div class="flex justify-content-start gap-2 flex-wrap"><div>No existen productos en el carrito.</div><div @click="goToShop()" class="text-primary cursor-pointer font-bold underline">Empezar a explorar</div></div></div>
+          <div v-if="$store.state.cartProducts.length == 0" class="">
+            <div class="flex justify-content-start gap-2 flex-wrap">
+              <div>No existen productos en el carrito.</div>
+              <div @click="goToShop()" class="text-primary cursor-pointer font-bold underline">Empezar a explorar</div>
+            </div>
+          </div>
           <div v-for="item in $store.state.cartProducts"
             class="border-1 mb-3 border-round-sm p-2 border-200 shadow-1 hover:shadow-none hover:surface-100 transition-duration-150 transition-colors cursor-pointer flex flex-wrap gap-2 justify-content-start"
             rounded>
-            <div :style="{ backgroundImage: `url(${($store.state.storageUrl + item.idproducto + '.png')})` }" class="cart-product" />
+            <div :style="{ backgroundImage: `url(${($store.state.storageUrl + item.idproducto + '.png')})` }"
+              class="cart-product" />
             <div class="cart-product-summary" style="width:60%; height: 90px">
               <div class="text-sm	mt-1 font-semibold white-space-nowrap overflow-hidden text-overflow-ellipsis">
                 {{ item.nombreproducto }}
@@ -52,9 +119,9 @@
                 ${{ item.precio }}DOP
               </div>
               <div class="flex text-xs cart-quantity justify-content-between" style="margin-top: 15px">
-                <InputNumber v-model="item.cantidad" @input="changeCantidad(item)" size="small" inputStyle="font-size: 0.75rem; padding: 0px;" :min="1"
-                  :max="100" showButtons buttonLayout="horizontal" decrementButtonClassName="cart-quantity"
-                  incrementButtonClassName="cart-quantity">
+                <InputNumber v-model="item.cantidad" @input="changeCantidad(item)" size="small"
+                  inputStyle="font-size: 0.75rem; padding: 0px;" :min="1" :max="100" showButtons buttonLayout="horizontal"
+                  decrementButtonClassName="cart-quantity" incrementButtonClassName="cart-quantity">
                   <template #incrementbuttonicon>
                     <span class="pi pi-plus" />
                   </template>
@@ -62,7 +129,8 @@
                     <span class="pi pi-minus" />
                   </template>
                 </InputNumber>
-                <Button icon="pi pi-trash" @click="removeToCart(item)" size="small" style="padding: 0px 12px" severity="danger" outlined />
+                <Button icon="pi pi-trash" @click="removeToCart(item)" size="small" style="padding: 0px 12px"
+                  severity="danger" outlined />
               </div>
             </div>
           </div>
@@ -73,10 +141,12 @@
             <div class="flex justify-content-between mb-2">
               <div class="text-base text-black-alpha-90 font-bold">Total:</div>
               <div class="text-lg text-black-alpha-90 font-bold">
-                ${{ $store.state.cartProducts.reduce((total, item) => total + (item.precio * item.cantidad), 0).toFixed(2) }}DOP
+                ${{ $store.state.cartProducts.reduce((total, item) => total + (item.precio * item.cantidad), 0).toFixed(2)
+                }}DOP
               </div>
             </div>
-            <Button label="Proceder al Pago" @click="goToPay()" class="w-full mt-2 hover:teal-100 transition-duration-150 transition-colors" />
+            <Button label="Proceder al Pago" @click="goToPay()"
+              class="w-full mt-2 hover:teal-100 transition-duration-150 transition-colors" />
           </div>
         </div>
       </div>
@@ -92,11 +162,17 @@
       </template>
       <div class="flex flex-column h-full">
         <div class="overflow-y-auto">
-          <div v-if="$store.state.favoritesProducts.length == 0" class=""><div class="flex justify-content-start gap-2 flex-wrap"><div>No existen productos en favoritos.</div><div @click="goToShop()" class="text-primary cursor-pointer font-bold underline">Empezar a explorar</div></div></div>
+          <div v-if="$store.state.favoritesProducts.length == 0" class="">
+            <div class="flex justify-content-start gap-2 flex-wrap">
+              <div>No existen productos en favoritos.</div>
+              <div @click="goToShop()" class="text-primary cursor-pointer font-bold underline">Empezar a explorar</div>
+            </div>
+          </div>
           <div v-for="item in $store.state.favoritesProducts"
             class="border-1 mb-3 border-round-sm p-2 border-200 shadow-1 hover:shadow-none hover:surface-100 transition-duration-150 transition-colors cursor-pointer flex flex-wrap gap-2 justify-content-start"
             rounded>
-            <div :style="{ backgroundImage: `url(${($store.state.storageUrl + item.idProducto + '.png')})` }" class="cart-product" />
+            <div :style="{ backgroundImage: `url(${($store.state.storageUrl + item.idProducto + '.png')})` }"
+              class="cart-product" />
             <div class="cart-product-summary" style="max-width:60%; height: 90px">
               <div class="text-sm	mt-1 font-semibold white-space-nowrap overflow-hidden text-overflow-ellipsis">
                 {{ item.NombreProducto }}
@@ -105,13 +181,18 @@
                 ${{ item.Precio.toFixed(2) }}DOP
               </div>
               <div class="flex text-xs cart-quantity justify-content-start gap-2 mt-3">
-                <Button @click="removeToCart(item)" v-if="$store.state.cartProducts.some(x => x.idproducto == item.idProducto)"  icon="pi pi-shopping-bag" size="small" style="padding: 4px 14px" severity="primary" />
-                <Button @click="addToCart(item)" v-else icon="pi pi-shopping-bag" size="small" style="padding: 4px 14px" outlined severity="primary" />
-                <Button icon="fa-solid fa-heart" size="small" style="padding: 4px 14px" severity="secondary" @click="removeFavorite(item.idProducto)" />
+                <Button @click="removeToCart(item)"
+                  v-if="$store.state.cartProducts.some(x => x.idproducto == item.idProducto)" icon="pi pi-shopping-bag"
+                  size="small" style="padding: 4px 14px" severity="primary" />
+                <Button @click="addToCart(item)" v-else icon="pi pi-shopping-bag" size="small" style="padding: 4px 14px"
+                  outlined severity="primary" />
+                <Button icon="fa-solid fa-heart" size="small" style="padding: 4px 14px" severity="secondary"
+                  @click="removeFavorite(item.idProducto)" />
               </div>
             </div>
           </div>
         </div>
+        
       </div>
     </Sidebar>
   </div>
@@ -122,28 +203,40 @@ import supabase from '../lib/supabaseClient'
 import ProfileButton from './ProfileButton.vue';
 
 export default {
-  components: {ProfileButton},
+  components: { ProfileButton },
   data() {
     return {
+      mobileMenu: false,
       cartSidebar: false,
       favoriteSidebar: false,
       busqueda: null,
       productos: [],
       productosFiltrados: [],
-      favoriteProducts: [],
-      cartProducts: [],
-      itemsProfileMenu: [
-          {
-              label: 'Administrar productos',
-              icon: 'pi pi-cog'
+      mobileMenuItems: [
+          { 
+            label: 'Mis Pedidos', 
+            icon: 'pi pi-truck', 
+            command: () => {
+              this.openOrders();
+              this.mobileMenu = false;
+            }
           },
-          {
-              label: 'Refresh',
-              icon: 'pi pi-refresh'
+          { 
+            label: 'Mis Favoritos', 
+            icon: 'pi pi-heart', 
+            command: () => {
+              this.openFavorites();
+              this.mobileMenu = false;
+            } 
           },
-          {
-              label: 'Cerrar sesión',
-              icon: 'pi pi-sign-out'
+          { 
+            label: 'Mi Carrito', 
+            icon: 'pi pi-shopping-bag', 
+            badge: this.$store.state.cartProducts.length, 
+            command: () => {
+              this.openCart();
+              this.mobileMenu = false;
+            }  
           }
       ]
     }
@@ -169,62 +262,62 @@ export default {
         this.productosFiltrados = [...this.productos];
       } else {
         this.productosFiltrados = this.productos.filter((producto) => {
-            return producto.NombreProducto.toLowerCase().startsWith(event.query.toLowerCase());
+          return producto.NombreProducto.toLowerCase().startsWith(event.query.toLowerCase());
         });
       }
     },
     async addToCart(Producto) {
-        let { data: Carritos, error } = await supabase
+      let { data: Carritos, error } = await supabase
         .from('Carritos')
         .select('idCarrito')
         .eq('Activo', true)
         .single()
 
-        if (error) {
-            push.error(error.message)
-        }
-        else {           
-            const { data, error } = await supabase
-            .from('ProductosCarrito')
-            .insert([
-                { idProducto: Producto.idProducto, idCarrito: Carritos.idCarrito, Precio: Producto.Precio, Cantidad: 1 },
-            ])
-            .select()
+      if (error) {
+        push.error(error.message)
+      }
+      else {
+        const { data, error } = await supabase
+          .from('ProductosCarrito')
+          .insert([
+            { idProducto: Producto.idProducto, idCarrito: Carritos.idCarrito, Precio: Producto.Precio, Cantidad: 1 },
+          ])
+          .select()
 
-            if (error) {
-                push.error(error.message)
-            }
-            else {
-                this.$store.dispatch('fetchCart');
-                push.success(`Se ha agregado "${Producto.NombreProducto}" al carrito`)
-            }
+        if (error) {
+          push.error(error.message)
         }
+        else {
+          this.$store.dispatch('fetchCart');
+          push.success(`Se ha agregado "${Producto.NombreProducto}" al carrito`)
+        }
+      }
     },
     async removeToCart(Producto) {
-        let { data: Carritos, error } = await supabase
+      let { data: Carritos, error } = await supabase
         .from('Carritos')
         .select('idCarrito')
         .eq('Activo', true)
         .single()
 
-        if (error) {
-            push.error(error.message)
-        }
-        else {            
-            const { error } = await supabase
-            .from('ProductosCarrito')
-            .delete()
-            .eq('idProducto', Producto.idProducto || Producto.idproducto)
-            .eq('idCarrito', Carritos.idCarrito)
+      if (error) {
+        push.error(error.message)
+      }
+      else {
+        const { error } = await supabase
+          .from('ProductosCarrito')
+          .delete()
+          .eq('idProducto', Producto.idProducto || Producto.idproducto)
+          .eq('idCarrito', Carritos.idCarrito)
 
-            if (error) {
-                push.error(error.message)
-            }
-            else {
-                this.$store.dispatch('fetchCart');
-                push.success(`Se ha retirado "${Producto.NombreProducto || Producto.nombreproducto}" del carrito`)
-            }
+        if (error) {
+          push.error(error.message)
         }
+        else {
+          this.$store.dispatch('fetchCart');
+          push.success(`Se ha retirado "${Producto.NombreProducto || Producto.nombreproducto}" del carrito`)
+        }
+      }
     },
     async loadFavoriteProducts() {
       this.$store.dispatch('fetchFavorites');
@@ -243,17 +336,17 @@ export default {
     },
     async removeFavorite(idProducto) {
       const { error } = await supabase
-      .from('Favoritos')
-      .delete()
-      .eq('idProducto', idProducto)
+        .from('Favoritos')
+        .delete()
+        .eq('idProducto', idProducto)
 
       if (error) push.error(error.message);
       else this.$store.dispatch('fetchFavorites');
-    },  
+    },
     async loadProducts() {
       let { data: Productos, error } = await supabase
-            .from('Productos')
-            .select("idProducto, NombreProducto")
+        .from('Productos')
+        .select("idProducto, NombreProducto")
       if (Productos) {
         this.productos = Productos;
       }
@@ -261,7 +354,7 @@ export default {
     async validateSession() {
       const { data } = await supabase.auth.getSession();
       if (data.session) return true;
-      else { 
+      else {
         push.warning("Debe iniciar sesión")
         return false;
       }
@@ -271,7 +364,7 @@ export default {
       if (!authenticated) {
         this.$router.push('/SignIn');
         return;
-      } 
+      }
       else {
         this.$router.push('/Pedidos')
       }
@@ -281,7 +374,7 @@ export default {
       if (!authenticated) {
         this.$router.push('/SignIn');
         return;
-      } 
+      }
       else {
         this.$refs.menu[0].toggle(event)
       }
@@ -291,7 +384,7 @@ export default {
       if (!authenticated) {
         this.$router.push('/SignIn');
         return;
-      } 
+      }
       else {
         this.$store.dispatch('fetchFavorites');
         this.favoriteSidebar = true;
@@ -302,18 +395,17 @@ export default {
       if (!authenticated) {
         this.$router.push('/SignIn');
         return;
-      } 
+      }
       else {
         this.$store.dispatch('fetchCart');
         this.cartSidebar = true;
       }
     },
     search() {
-      if (this.busqueda == ''){
+      if (this.busqueda == '') {
         this.$router.push({ path: `/Productos` })
       }
       else {
-        console.log(this.busqueda);
         this.$router.push({ path: `/Productos`, query: { q: this.busqueda.NombreProducto } })
       }
     }
@@ -363,9 +455,9 @@ export default {
 }
 
 .search-bar .p-inputtext {
- width: 100% !important;
- padding: 0.5rem 0.5rem;
- font-size: small;
- background-color: #f5f5f5;
+  width: 100% !important;
+  padding: 0.5rem 0.5rem;
+  font-size: small;
+  background-color: #f5f5f5;
 }
 </style>

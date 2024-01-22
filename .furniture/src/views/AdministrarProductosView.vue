@@ -26,10 +26,57 @@
       </template>
   </Column>
     <Column key="" field="Disponible" header="Disponibilidad"></Column>
-    <Column bodyStyle="text-align:center"><template #body>
-      <Button size="small" icon="pi pi-pencil" text rounded severity="secondary"></Button>
-    </template></Column>
+    <Column bodyStyle="text-align:center">
+      <template #body="slotProps">
+        <Button size="small" icon="pi pi-pencil" @click="editProduct(slotProps.data)" text rounded severity="secondary"></Button>
+      </template>
+    </Column>
   </DataTable>
+
+  <Dialog v-model:visible="formDialog" :style="{width: '450px'}" header="Detalle Producto" :modal="true" class="p-fluid">
+      <div v-if="product.idProducto" :style="{ backgroundImage: `url(${($store.state.storageUrl + product.idProducto + '.png')})` }" class="border-round-3xl h-15rem w-full bg-cover bg-no-repeat bg-center" />
+      <div class="field">
+          <label for="name">Nombre</label>
+          <InputText id="name" v-model.trim="product.NombreProducto" required="true" autofocus :class="{'p-invalid': submitted && !product.NombreProducto}" />
+          <small class="p-error" v-if="submitted && !product.NombreProducto">Nombre del producto es requerido.</small>
+      </div>
+      <div class="field">
+          <label for="description">Descripción</label>
+          <Textarea id="description" autoResize v-model="product.Descripcion" required="true" rows="3" cols="20" />
+      </div>
+
+      <div class="field">
+        <label for="inventoryStatus" class="mb-3">Categoría</label>
+        <Dropdown id="inventoryStatus" v-model="product.inventoryStatus" :options="statuses" optionLabel="label" placeholder="Select a Status">
+          <template #value="slotProps">
+            <div v-if="slotProps.value && slotProps.value.value">
+                            <Tag :value="slotProps.value.value" :severity="getStatusLabel(slotProps.value.label)" />
+                        </div>
+                        <div v-else-if="slotProps.value && !slotProps.value.value">
+                            <Tag :value="slotProps.value" :severity="getStatusLabel(slotProps.value)" />
+                        </div>
+            <span v-else>
+              {{slotProps.placeholder}}
+            </span>
+          </template>
+        </Dropdown>
+      </div>
+
+      <div class="formgrid grid">
+          <div class="field col">
+              <label for="price">Precio</label>
+              <InputNumber id="price" v-model="product.Precio" mode="currency" currency="DOP" locale="es-DO" />
+          </div>
+          <div class="field col">
+              <label for="quantity">Cantidad</label>
+              <InputNumber id="quantity" v-model="product.Disponible" integeronly />
+          </div>
+      </div>
+      <template #footer>
+          <Button label="Cancelar" size="small" icon="pi pi-times my-2" text @click="hideDialog()"/>
+          <Button label="Guardar" size="small" icon="pi pi-check" text @click="saveProduct()" />
+      </template>
+  </Dialog>
 </div>
 <ConfirmPopup />
 
@@ -56,7 +103,9 @@ export default {
         route: '/'
       },
       itemsBread: [ {label: "Administración"}, {label: "Administrar Productos", route: '/AdministrarProductos'} ],
-      products: []
+      products: [],
+      product: {},
+      formDialog: false,
     }
   },
   created() {
@@ -68,6 +117,10 @@ export default {
     this.loadProducts();
   },
   methods: {
+    editProduct(producto) {
+      this.product = producto;
+      this.formDialog = true;
+    },
     async loadProducts() {
       let { data: Productos, error } = await supabase
       .from('Productos')
@@ -79,7 +132,6 @@ export default {
               )
           `)
 
-      console.log(Productos);
       if (error) push.error(error.message);
       else this.products = Productos;
     }
