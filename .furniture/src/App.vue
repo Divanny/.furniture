@@ -5,12 +5,6 @@
     </NotivueSwipe>
   </Notivue>
   <div class="app-layout">
-    <div class="bg-bluegray-900 text-gray-100 p-2 flex justify-content-between lg:justify-content-center align-items-center flex-wrap">
-      <div class="font-bold mr-8">🔥 Hot Deals!</div>
-      <div class="align-items-center hidden lg:flex">
-          <span class="line-height-3 text-sm">Aprovecha las ofertas de año nuevo.</span>
-      </div>
-    </div>
     <div class="mx-0 xl:mx-6">
       <div class="mx-0 xl:mx-8">
         <NavbarComponent/>
@@ -22,10 +16,38 @@
   <ScrollTop />
 </template>
 <script setup>
+import { onMounted, onBeforeUnmount } from 'vue';
 import NavbarComponent from "./layout/NavbarComponent.vue";
 import FooterComponent from "./layout/FooterComponent.vue";
 import { Notivue, Notifications, NotivueSwipe, pastelTheme, push } from 'notivue'
+import { useStore } from 'vuex';
 
+const store = useStore();
+
+const handleResize = () => {
+  store.commit('setIsMobile', window.innerWidth <= 768);
+};
+
+// Initial check and setup on component mount
+const setupMobileCheck = () => {
+  handleResize();
+  window.addEventListener('resize', handleResize);
+};
+
+// Cleanup when component is unmounted
+const cleanupMobileCheck = () => {
+  window.removeEventListener('resize', handleResize);
+};
+
+// Call the setup function when the component is mounted
+onMounted(() => {
+  setupMobileCheck();
+});
+
+// Call the cleanup function when the component is unmounted
+onBeforeUnmount(() => {
+  cleanupMobileCheck();
+});
 </script>
 
 <style>

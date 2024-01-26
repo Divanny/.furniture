@@ -201,7 +201,7 @@ export default {
             .rpc('searchproduct', {
                 texto_busqueda: this.busqueda
             })
-            console.log(data);
+
             if (error) {
                 push.error(error.message)
             }

@@ -54,6 +54,13 @@ export default {
         
         if (error) push.error(error.message);
         else { 
+            let { data: Administradores } = await supabase
+            .from('Administradores')
+            .select('*')
+            .eq('idUsuario', data.session.user.id)
+
+            if (Administradores.length > 0) data.session.user.administrador = true;
+
             this.$store.commit('setAuthenticated', data.session.user)
             push.success('Inicio de sesión exitoso');
             this.$router.push('/');

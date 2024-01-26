@@ -92,7 +92,10 @@ export default {
     this.loadProduct();    
   },
   watch: {
-
+    '$route.params.idProducto': function(newQ, oldQ) {
+      this.idProducto = newQ || null;
+      this.loadProduct();
+    }
   },
   mounted() {
   },

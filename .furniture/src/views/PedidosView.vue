@@ -1,6 +1,6 @@
 <template>
 <div class="p-4">
-  <div class="flex justify-content-between">
+  <div class="flex justify-content-between align-items-center">
     <Breadcrumb :home="home" :model="itemsBread" class="p-1 align-items-center border-0">
       <template #item="{ item, props }">
           <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom>
@@ -27,7 +27,7 @@
           </div>
           <div class="flex flex-column gap-1">
             <div class="text-sm font-bold text-600">Fecha de la Orden</div>
-            <div class="text-sm">{{pedido.FechaPedido}}</div>
+            <div class="text-sm">{{(pedido.FechaPedido != null) ? formatearFecha(pedido.FechaPedido) : pedido.FechaPedido}}</div>
           </div>
           <div class="flex flex-column gap-1">
             <div class="text-sm font-bold text-600">Costo Total</div>
@@ -106,8 +106,26 @@ export default {
     this.loadPedidos();
   },
   methods: {
+    formatearFecha(fechaRaw) {
+      const fechaFormateada = new Date(fechaRaw);
+
+      const opciones = {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        fractionalSecondDigits: 3,
+        hour12: false, // Usar formato de 24 horas
+      };
+
+      const formateadorFecha = new Intl.DateTimeFormat('es-ES', opciones);
+
+      return formateadorFecha.format(fechaFormateada);
+    },
     async loadPedidos() {
-      let { data, error } = await supabase.rpc('loadPedidos')
+      let { data, error } = await supabase.rpc('loadPedidos').order('FechaPedido', { ascending: false })
       this.pedidos = data;
     },
     async addToCart(Producto) {
