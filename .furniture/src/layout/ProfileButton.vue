@@ -12,7 +12,7 @@
             <hr class="mx-1 border-top-1 border-none surface-border" />
         </template>
         <template #item="{ item, props }">
-            <a class="flex align-items-center" v-bind="props.action">
+            <a class="flex align-items-center" v-bind="props.action" v-if="(!item.administrador) || (item.administrador == store.state.authenticated.administrador)">
                 <span :class="item.icon + ' text-sm'" />
                 <span class="ml-2 text-sm">{{ item.label }}</span>
             </a>
@@ -34,6 +34,7 @@ const itemsProfileMenu = ref([
     {
         label: 'Administrar productos',
         icon: 'pi pi-cog',
+        administrador: true,
         command: () => {
             router.push('/AdministrarProductos')
         }
@@ -41,6 +42,7 @@ const itemsProfileMenu = ref([
     {
         label: 'Mis pedidos',
         icon: 'pi pi-truck',
+        administrador: false,
         command: () => {
             router.push('/Pedidos')
         }
@@ -48,18 +50,18 @@ const itemsProfileMenu = ref([
     {
         label: 'Cerrar sesión',
         icon: 'pi pi-sign-out',
+        administrador: false,
         command: async () => {
-            authenticated.value = null;
             const { error } = await supabase.auth.signOut();
             if (error) push.error(error.message)
             else { 
                 push.success("Ha cerrado sesión exitosamente")
                 store.commit('setAuthenticated', null)
+                router.push('/');
             }
         }
     }
 ]);
-const authenticated = ref();
 
 const openProfile = async (event) => {
     menu.value.toggle(event)
@@ -72,7 +74,12 @@ onMounted(async () => {
 const validateSession = async() => {
     const { data } = await supabase.auth.getSession();
     if (data.session) { 
-        authenticated.value = data.session.user;
+        let { data: Administradores } = await supabase
+            .from('Administradores')
+            .select('*')
+            .eq('idUsuario', data.session.user.id)
+            
+        if (Administradores.length > 0) data.session.user.administrador = true;
         store.commit('setAuthenticated', data.session.user)
     }
     else {

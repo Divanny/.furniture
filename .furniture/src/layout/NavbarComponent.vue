@@ -108,14 +108,14 @@
           </div>
           <div v-for="item in $store.state.cartProducts"
             class="border-1 mb-3 border-round-sm p-2 border-200 shadow-1 hover:shadow-none hover:surface-100 transition-duration-150 transition-colors cursor-pointer flex flex-wrap gap-2 justify-content-start"
-            rounded>
-            <div :style="{ backgroundImage: `url(${($store.state.storageUrl + item.idproducto + '.png')})` }"
+            rounded @click.self="$router.push(`/Producto/${item.idproducto}`)"> 
+            <div @click.self="$router.push(`/Producto/${item.idproducto}`)" :style="{ backgroundImage: `url(${($store.state.storageUrl + item.idproducto + '.png')})` }"
               class="cart-product" />
             <div class="cart-product-summary" style="width:60%; height: 90px">
-              <div class="text-sm	mt-1 font-semibold white-space-nowrap overflow-hidden text-overflow-ellipsis">
+              <div @click.self="$router.push(`/Producto/${item.idproducto}`)" class="text-sm	mt-1 font-semibold white-space-nowrap overflow-hidden text-overflow-ellipsis">
                 {{ item.nombreproducto }}
               </div>
-              <div class="text-md	mt-2 font-bold white-space-nowrap overflow-hidden text-overflow-ellipsis">
+              <div @click.self="$router.push(`/Producto/${item.idproducto}`)" class="text-md	mt-2 font-bold white-space-nowrap overflow-hidden text-overflow-ellipsis">
                 ${{ item.precio }}DOP
               </div>
               <div class="flex text-xs cart-quantity justify-content-between" style="margin-top: 15px">
@@ -170,14 +170,16 @@
           </div>
           <div v-for="item in $store.state.favoritesProducts"
             class="border-1 mb-3 border-round-sm p-2 border-200 shadow-1 hover:shadow-none hover:surface-100 transition-duration-150 transition-colors cursor-pointer flex flex-wrap gap-2 justify-content-start"
-            rounded>
-            <div :style="{ backgroundImage: `url(${($store.state.storageUrl + item.idProducto + '.png')})` }"
+            rounded
+            @click.self="$router.push(`/Producto/${item.idProducto}`)"
+            >
+            <div @click.self="$router.push(`/Producto/${item.idProducto}`)" :style="{ backgroundImage: `url(${($store.state.storageUrl + item.idProducto + '.png')})` }"
               class="cart-product" />
-            <div class="cart-product-summary" style="max-width:60%; height: 90px">
-              <div class="text-sm	mt-1 font-semibold white-space-nowrap overflow-hidden text-overflow-ellipsis">
+            <div @click.self="$router.push(`/Producto/${item.idProducto}`)" class="cart-product-summary" style="max-width:60%; height: 90px">
+              <div @click.self="$router.push(`/Producto/${item.idProducto}`)" class="text-sm	mt-1 font-semibold white-space-nowrap overflow-hidden text-overflow-ellipsis">
                 {{ item.NombreProducto }}
               </div>
-              <div class="text-md	mt-1 font-bold white-space-nowrap overflow-hidden text-overflow-ellipsis">
+              <div @click.self="$router.push(`/Producto/${item.idProducto}`)" class="text-md	mt-1 font-bold white-space-nowrap overflow-hidden text-overflow-ellipsis">
                 ${{ item.Precio.toFixed(2) }}DOP
               </div>
               <div class="flex text-xs cart-quantity justify-content-start gap-2 mt-3">
